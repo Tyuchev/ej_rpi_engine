@@ -5,7 +5,7 @@
 
 
 # James' additions
-bin/spacegame
+bin/spacegame*
 
 # User-specific files
 *.rsuser
@@ -334,22 +334,12 @@ __pycache__/
 *.jmconfig
 
 # BizTalk build output
-*.btp.cs
-*.btm.cs
-*.odx.cs
-*.xsd.cs
-
-# OpenCover UI analysis results
-OpenCover/
-
-# Azure Stream Analytics local run output
-ASALocalRun/
-
+Compiler (tested on MSVC, GCC)
 # MSBuild Binary and Structured Log
 *.binlog
 
 # NVidia Nsight GPU debugger configuration file
-*.nvuser
+Compiler (tested on MSVC, GCC)
 
 # MFractors (Xamarin productivity tool) working folder
 .mfractor/
@@ -358,6 +348,7 @@ ASALocalRun/
 .localhistory/
 
 # BeatPulse healthcheck temp database
+Compiler (tested on MSVC, GCC)
 healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017

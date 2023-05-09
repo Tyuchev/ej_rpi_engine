@@ -352,8 +352,8 @@ Window::Open()
 	int nvgFontId = nvgCreateFont(vg, "sans", "c:/windows/fonts/tahoma.ttf");
 	ImFont* font = io.Fonts->AddFontFromFileTTF("c:/windows/fonts/tahoma.ttf", 14, &config);
 #else
-	int nvgFontId = nvgCreateFont(vg, "sans", "/usr/share/fonts/truetype/freefont/FreeSans.ttf");
-	ImFont* font = io.Fonts->AddFontFromFileTTF("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 18, &config);
+	int nvgFontId = nvgCreateFont(vg, "sans", "assets/fonts/FreeSans.ttf");
+	ImFont* font = io.Fonts->AddFontFromFileTTF("assets/fonts/FreeSans.ttf", 18, &config);
 #endif
 
 	unsigned char* buffer;

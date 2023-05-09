@@ -1,6 +1,7 @@
 #include "config.h"
 #include "particlesystem.h"
 #include "shaderresource.h"
+#include <algorithm>
 
 namespace Render
 {

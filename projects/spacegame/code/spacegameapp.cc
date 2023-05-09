@@ -90,20 +90,20 @@ SpaceGameApp::Run()
 
     // load all resources
     ModelId models[6] = {
-        LoadModel("assets/space/Asteroid_1.glb"),
-        LoadModel("assets/space/Asteroid_2.glb"),
-        LoadModel("assets/space/Asteroid_3.glb"),
-        LoadModel("assets/space/Asteroid_4.glb"),
-        LoadModel("assets/space/Asteroid_5.glb"),
-        LoadModel("assets/space/Asteroid_6.glb")
+        LoadModel("assets/space_deprecated/Asteroid_1.glb"),
+        LoadModel("assets/space_deprecated/Asteroid_2.glb"),
+        LoadModel("assets/space_deprecated/Asteroid_3.glb"),
+        LoadModel("assets/space_deprecated/Asteroid_4.glb"),
+        LoadModel("assets/space_deprecated/Asteroid_5.glb"),
+        LoadModel("assets/space_deprecated/Asteroid_6.glb")
     };
     Physics::ColliderMeshId colliderMeshes[6] = {
-        Physics::LoadColliderMesh("assets/space/Asteroid_1_physics.glb"),
-        Physics::LoadColliderMesh("assets/space/Asteroid_2_physics.glb"),
-        Physics::LoadColliderMesh("assets/space/Asteroid_3_physics.glb"),
-        Physics::LoadColliderMesh("assets/space/Asteroid_4_physics.glb"),
-        Physics::LoadColliderMesh("assets/space/Asteroid_5_physics.glb"),
-        Physics::LoadColliderMesh("assets/space/Asteroid_6_physics.glb")
+        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_1_physics.glb"),
+        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_2_physics.glb"),
+        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_3_physics.glb"),
+        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_4_physics.glb"),
+        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_5_physics.glb"),
+        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_6_physics.glb")
     };
 
     std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
@@ -151,12 +151,12 @@ SpaceGameApp::Run()
     // Setup skybox
     std::vector<const char*> skybox
     {
-        "assets/space/bg.png",
-        "assets/space/bg.png",
-        "assets/space/bg.png",
-        "assets/space/bg.png",
-        "assets/space/bg.png",
-        "assets/space/bg.png"
+        "assets/space_deprecated/bg.png",
+        "assets/space_deprecated/bg.png",
+        "assets/space_deprecated/bg.png",
+        "assets/space_deprecated/bg.png",
+        "assets/space_deprecated/bg.png",
+        "assets/space_deprecated/bg.png"
     };
     TextureResourceId skyboxId = TextureResource::LoadCubemap("skybox", skybox, true);
     RenderDevice::SetSkybox(skyboxId);
@@ -182,7 +182,7 @@ SpaceGameApp::Run()
     }
 
     SpaceShip ship;
-    ship.model = LoadModel("assets/space/spaceship.glb");
+    ship.model = LoadModel("assets/pod_racing/Models/GLTF format/craft_speederD.glb");
 
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;

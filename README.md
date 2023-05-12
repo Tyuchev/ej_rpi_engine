@@ -12,6 +12,13 @@ Download found here under creative commons liscense:
 https://kenney.nl/assets/space-kit
 
 
+Download FreeSans font & place the .ttf file into: {project_root}/bin/assets/fonts
+(If the folder 'fonts' does not exist, create it)
+
+Download found here under GNU GPL:
+https://github.com/opensourcedesign/fonts/blob/master/gnu-freefont_freesans/FreeSans.ttf
+
+
 ## Once set-up as above, run the executable from the terminal while in {project_root}/bin/
 
 ## Requirements

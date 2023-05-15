@@ -1,3 +1,8 @@
+Pod Racer Implementation:
+Emily Sundverg
+James Hoffmann
+
+Original Engine Repo:
 Fredrik Lindahl (fredrik-lindahl@outlook.com)
 Johannes Hirche (johannes@gscept.com)
 Gustav Sterbrant (gustav@gscept.com)

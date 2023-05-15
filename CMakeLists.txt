@@ -1,8 +1,8 @@
 #--------------------------------------------------------------------------
 # spaceengine
 #--------------------------------------------------------------------------
-PROJECT(spaceengine)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
+PROJECT(EJPodRacer)
 
 MACRO(TARGET_PCH target path)
 IF(WIN32)

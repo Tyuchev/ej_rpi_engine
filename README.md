@@ -22,7 +22,7 @@ https://github.com/opensourcedesign/fonts/blob/master/gnu-freefont_freesans/Free
 ## Once set-up as above, run the executable from the terminal while in {project_root}/bin/
 
 
-## Build/Depolyment target - Raspberry Pi 4
+## Build/Deployment target - Raspberry Pi 4
 
 Our RPI 4 is running:
 * cmake version 3.18.4

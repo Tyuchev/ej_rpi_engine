@@ -164,11 +164,10 @@ EJApp::Run()
     TextureResourceId skyboxId = TextureResource::LoadCubemap("skybox", skybox, true);
     RenderDevice::SetSkybox(skyboxId);
     
-    Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
+    // Setup lights
     const int numLights = 4;
     Render::PointLightId lights[numLights];
-    // Setup lights
     for (int i = 0; i < numLights; i++)
     {
         glm::vec3 translation = glm::vec3(
@@ -184,13 +183,23 @@ EJApp::Run()
         lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
     }
 
+    // Load Player model
     PodRacer racer;
-    racer.model = LoadModel("assets/pod_racing/Models/GLTF format/craft_speederD.glb");
+    racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
 
+
+    // Input mediums here
+    Input::Keyboard* kbd = Input::GetDefaultKeyboard();
+    // Only need to set up inputs here if used directly in this file
+    // The below line can probably be deleted once we release
+    Input::Mouse* mouse = Input::GetDefaultMouse();
+
+
+    // Start Timers
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
 
-    // game loop
+    // Game loop
     while (this->window->IsOpen())
 	{
         auto timeStart = std::chrono::steady_clock::now();
@@ -199,26 +208,32 @@ EJApp::Run()
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
         
+        // GLFWPollEvents & resets user input (also manages held keys)
         this->window->Update();
 
+        // For Debugging?
         if (kbd->pressed[Input::Key::Code::End])
         {
             ShaderResource::ReloadShaders();
         }
 
+        // Update checks for user input & controls/updates the model
         racer.Update(dt);
         racer.CheckCollisions();
 
         // Store all drawcalls in the render device
+        // Obsticles
         for (auto const& asteroid : asteroids)
         {
             RenderDevice::Draw(std::get<0>(asteroid), std::get<2>(asteroid));
         }
-
+        // Player Model
         RenderDevice::Draw(racer.model, racer.transform);
 
-        // Execute the entire rendering pipeline
+
+        // Then Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);
+
 
 		// transfer new frame to window
 		this->window->SwapBuffers();
@@ -226,6 +241,7 @@ EJApp::Run()
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
 
+        // Exit Program
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();
 	}

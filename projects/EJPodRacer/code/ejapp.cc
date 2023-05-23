@@ -20,6 +20,7 @@
 #include "render/physics.h"
 #include <chrono>
 #include "podracer.h"
+#include "mapgen.h"
 
 using namespace Display;
 using namespace Render;
@@ -88,66 +89,6 @@ EJApp::Run()
     Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
     cam->projection = projection;
 
-    // load all resources
-    ModelId models[6] = {
-        LoadModel("assets/space_deprecated/Asteroid_1.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_2.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_3.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_4.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_5.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_6.glb")
-    };
-    Physics::ColliderMeshId colliderMeshes[6] = {
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_1_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_2_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_3_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_4_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_5_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_6_physics.glb")
-    };
-
-    std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
-    
-    // Setup asteroids near
-    for (int i = 0; i < 25; i++)
-    {
-        std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
-        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        std::get<0>(asteroid) = models[resourceIndex];
-        float span = 20.0f;
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span
-        );
-        glm::vec3 rotationAxis = normalize(translation);
-        float rotation = translation.x;
-        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
-        std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
-        std::get<2>(asteroid) = transform;
-        asteroids.push_back(asteroid);
-    }
-
-    // Setup asteroids far
-    for (int i = 0; i < 20; i++)
-    {
-        std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
-        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        std::get<0>(asteroid) = models[resourceIndex];
-        float span = 80.0f;
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span
-        );
-        glm::vec3 rotationAxis = normalize(translation);
-        float rotation = translation.x;
-        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
-        std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
-        std::get<2>(asteroid) = transform;
-        asteroids.push_back(asteroid);
-    }
-
     // Setup skybox
     std::vector<const char*> skybox
     {
@@ -187,6 +128,9 @@ EJApp::Run()
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
 
+    Mapgen mapgen;
+    mapgen.Generate();
+
     // game loop
     while (this->window->IsOpen())
 	{
@@ -207,12 +151,10 @@ EJApp::Run()
         racer.CheckCollisions();
 
         // Store all drawcalls in the render device
-        for (auto const& asteroid : asteroids)
-        {
-            RenderDevice::Draw(std::get<0>(asteroid), std::get<2>(asteroid));
-        }
 
         RenderDevice::Draw(racer.model, racer.transform);
+
+        mapgen.Draw();
 
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);
@@ -222,6 +164,9 @@ EJApp::Run()
 
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
+
+        if (kbd->pressed[Input::Key::Code::R])
+            mapgen.Generate();
 
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();

@@ -84,11 +84,13 @@ EJApp::Run()
     int w;
     int h;
     this->window->GetSize(w, h);
+
+    // Camera setup
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), float(w) / float(h), 0.01f, 1000.f);
     Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
     cam->projection = projection;
 
-    // load all resources
+    // load models/resources
     ModelId models[6] = {
         LoadModel("assets/space_deprecated/Asteroid_1.glb"),
         LoadModel("assets/space_deprecated/Asteroid_2.glb"),
@@ -106,6 +108,7 @@ EJApp::Run()
         Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_6_physics.glb")
     };
 
+    // Models stored in a vector of tuples (named asteroids) with their ModelID, Physics Collider & mat4 position
     std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
     
     // Setup asteroids near

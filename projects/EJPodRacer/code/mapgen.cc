@@ -40,20 +40,25 @@ void Mapgen::Generate() {
     // Generate sides
     for (int y = 0; y < GRID_HEIGHT; y++) {
         MapTile left;
+        glm::vec3 leftPos = glm::vec3(LEFT*TILE_SIZE, y*TILE_SIZE, 0.0f);
         left.model = this->sidesModelId;
         left.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-        left.transform = glm::translate(left.transform, glm::vec3(LEFT*TILE_SIZE, y*TILE_SIZE, 0.0f));
+        left.transform = glm::translate(left.transform, leftPos);
         left.transform = left.transform * glm::rotate(1.5708f, glm::vec3(0.0f, 0.0f, 1.0f));
         left.transform = left.transform * glm::rotate(1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
         tiles.push_back(left);
 
         MapTile right;
+        glm::vec3 rightPos = glm::vec3(RIGHT*TILE_SIZE, y*TILE_SIZE, 0.0f);
         right.model = this->sidesModelId;
         right.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-        right.transform = glm::translate(right.transform, glm::vec3(RIGHT*TILE_SIZE, y*TILE_SIZE, 0.0f));
+        right.transform = glm::translate(right.transform, rightPos);
         right.transform = right.transform * glm::rotate(1.5708f, glm::vec3(0.0f, 0.0f, 1.0f));
         right.transform = right.transform * glm::rotate(1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
         tiles.push_back(right);
+
+        lights.push_back(Render::LightServer::CreatePointLight(leftPos, glm::vec3(1.0f, 1.0f, 1.0f), 4, 15));
+        lights.push_back(Render::LightServer::CreatePointLight(rightPos, glm::vec3(1.0f, 1.0f, 1.0f), 4, 15));
     }
 
     // Generate road + obstacles

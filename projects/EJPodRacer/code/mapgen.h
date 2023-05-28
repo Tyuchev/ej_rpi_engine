@@ -1,6 +1,7 @@
 #pragma once
 #include "config.h"
 #include "render/model.h"
+#include "render/lightserver.h"
 #include <vector>
 
 
@@ -21,6 +22,7 @@ public:
 
 private:
     std::vector<MapTile> tiles;
+    std::vector<Render::PointLightId> lights;
     Render::ModelId sidesModelId;
     Render::ModelId obstaclesModelId;
 

@@ -56,9 +56,6 @@ void Mapgen::Generate() {
         right.transform = right.transform * glm::rotate(1.5708f, glm::vec3(0.0f, 0.0f, 1.0f));
         right.transform = right.transform * glm::rotate(1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
         tiles.push_back(right);
-
-        lights.push_back(Render::LightServer::CreatePointLight(leftPos, glm::vec3(1.0f, 1.0f, 1.0f), 4, 15));
-        lights.push_back(Render::LightServer::CreatePointLight(rightPos, glm::vec3(1.0f, 1.0f, 1.0f), 4, 15));
     }
 
     // Generate road + obstacles

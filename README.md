@@ -5,8 +5,8 @@ This engine is a work in progress, and things might not work as intended. Bugs a
 
 ## Example project setup
 
-Download Pod Racer assets & place all files from the unzipped folder into: {project_root}/bin/assets/pod_racing
-(If the folder pod_racing does not exist, create it)
+Download Pod Racer assets & place all files from the unzipped folder into: {project_root}/bin/assets/pod_racer
+(If the folder pod_racer does not exist, create it)
 
 Download found here under creative commons liscense:
 https://kenney.nl/assets/space-kit

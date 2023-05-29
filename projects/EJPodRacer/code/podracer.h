@@ -1,5 +1,10 @@
 #pragma once
 #include "render/model.h"
+#include "render/physics.h"
+
+#include <vector>
+#include <tuple>
+#include <iostream>
 
 namespace Render
 {
@@ -37,20 +42,26 @@ struct PodRacer
     Render::ParticleEmitter* particleEmitterRight;
     float emitterOffset = -0.5f;
 
+    Physics::ColliderId colliderID;
+
     void Update(float dt);
 
-    bool CheckCollisions();
+    void CheckCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions);
+    void ResolveCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions) const;
     
-    const glm::vec3 colliderEndPoints[8] = {
-        glm::vec3(-1.10657, -0.480347, -0.346542),  // right wing
-        glm::vec3(1.10657, -0.480347, -0.346542),  // left wing
-        glm::vec3(-0.342382, 0.25109, -0.010299),   // right top
-        glm::vec3(0.342382, 0.25109, -0.010299),   // left top
-        glm::vec3(-0.285614, -0.10917, 0.869609), // right front
-        glm::vec3(0.285614, -0.10917, 0.869609), // left front
-        glm::vec3(-0.279064, -0.10917, -0.98846),   // right back
-        glm::vec3(0.279064, -0.10917, -0.98846)   // right back
-    };
+
+    // Hard-coded collision points from the Engines test space simulation
+    //
+    // const glm::vec3 colliderEndPoints[8] = {
+    //     glm::vec3(-1.10657, -0.480347, -0.346542),  // right wing
+    //     glm::vec3(1.10657, -0.480347, -0.346542),  // left wing
+    //     glm::vec3(-0.342382, 0.25109, -0.010299),   // right top
+    //     glm::vec3(0.342382, 0.25109, -0.010299),   // left top
+    //     glm::vec3(-0.285614, -0.10917, 0.869609), // right front
+    //     glm::vec3(0.285614, -0.10917, 0.869609), // left front
+    //     glm::vec3(-0.279064, -0.10917, -0.98846),   // right back
+    //     glm::vec3(0.279064, -0.10917, -0.98846)   // right back
+    // };
 };
 
 }

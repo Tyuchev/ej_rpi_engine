@@ -6,6 +6,10 @@
 #include "render/debugrender.h"
 #include "render/particlesystem.h"
 
+#include <vector>
+#include <tuple>
+#include <iostream>
+
 using namespace Input;
 using namespace glm;
 using namespace Render;
@@ -99,7 +103,6 @@ PodRacer::Update(float dt)
     cam->view = lookAt(this->camPos, this->camPos + vec3(this->transform[2]), vec3(this->transform[1]));
 
 
-
     // Particle emitters - OFFLINE - I dont think these are working/full hooked-up
     //
     //
@@ -118,27 +121,71 @@ PodRacer::Update(float dt)
     // this->particleEmitter->data.randomTimeOffsetDist = 0.06f;/// +(0.01f * t);
 }
 
-bool
-PodRacer::CheckCollisions()
+void
+PodRacer::CheckCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions)
 {
     glm::mat4 rotation = (glm::mat4)orientation;
-    bool hit = false;
-    for (int i = 0; i < 8; i++)
+    
+    // iterating to 8 in below loop was hard coded - 
+    // It raycast from each outer point of the original model
+
+    // Change to 10 x 10 rays across whatever model we load?
+    // Or maybe 1 ray every 'x' pixels?
+    for (int i = 0; i < 1; i++)
     {
         glm::vec3 pos = position;
-        glm::vec3 dir = rotation * glm::vec4(glm::normalize(colliderEndPoints[i]), 0.0f);
-        float len = glm::length(colliderEndPoints[i]);
-        Physics::RaycastPayload payload = Physics::Raycast(position, dir, len);
+        //Maybe normalize 'pos'
+        glm::vec3 dir = rotation * glm::vec4(pos, 0.0f);
 
-        // debug draw collision rays
-        // Debug::DrawLine(pos, pos + dir * len, 1.0f, glm::vec4(0, 1, 0, 1), glm::vec4(0, 1, 0, 1), Debug::RenderMode::AlwaysOnTop);
+
+        float len = glm::length(pos);
+        Physics::RaycastPayload payload = Physics::Raycast(position, dir, len);
 
         if (payload.hit)
         {
-            Debug::DrawDebugText("HIT", payload.hitPoint, glm::vec4(1, 1, 1, 1));
-            hit = true;
+            // push_back raycaster ID & hit payload
+            collisions.push_back(std::make_tuple(this->colliderID, payload));
         }
+
     }
-    return hit;
+
+
+    if (collisions.size() > 0)
+    {
+        ResolveCollisions(collisions);
+    }
+
+    // At end of frame, clear collision list
+    collisions.clear();
+
+    return;
 }
+
+// rotate model to correct position, y? axis * 180?
+// check direction rays are cast in - seems to be coming out fo the top
+
+void
+PodRacer::ResolveCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions) const
+{
+
+
+    for (const auto &collision : collisions)
+    {
+        // Reduce/Reverse player speed
+
+        // Reflect players incoming force through the hit object's surface normal?
+        // Make player spin?
+
+        // Reduce Score?
+
+        // Remove Health?
+        std::cout << "HIT" << std::get<1>(collision).hitPoint.x << std::get<1>(collision).hitPoint.y << std::get<1>(collision).hitPoint.z << std::endl;
+    }
+
+    return;
+
+}
+
+
+
 }

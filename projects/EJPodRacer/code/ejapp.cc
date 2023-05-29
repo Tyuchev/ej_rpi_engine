@@ -90,7 +90,17 @@ EJApp::Run()
     Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
     cam->projection = projection;
 
-    // load models/resources
+
+    // Load Player Data
+    PodRacer player;
+    player.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
+
+    // Player Collider - Using the whole, original 'craft_speederD' model here - probably could be changed to a simpler shape
+    Physics::ColliderMeshId playerCollider = Physics::LoadColliderMesh("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
+    player.colliderID = Physics::CreateCollider(playerCollider, player.transform);
+
+
+    // load models/resources - DEPRECATED - Change/Replace with our own obstacles!
     ModelId models[6] = {
         LoadModel("assets/space_deprecated/Asteroid_1.glb"),
         LoadModel("assets/space_deprecated/Asteroid_2.glb"),
@@ -108,7 +118,7 @@ EJApp::Run()
         Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_6_physics.glb")
     };
 
-    // Models stored in a vector of tuples (named asteroids) with their ModelID, Physics Collider & mat4 position
+    // Models stored in a vector of tuples (currently named asteroids) with their ModelID, Physics Collider & mat4 position
     std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
     
     // Setup asteroids near
@@ -183,10 +193,6 @@ EJApp::Run()
         lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
     }
 
-    // Load Player model
-    PodRacer racer;
-    racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
-
 
     // Input mediums here
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
@@ -194,6 +200,9 @@ EJApp::Run()
     // The below line can probably be deleted once we release
     Input::Mouse* mouse = Input::GetDefaultMouse();
 
+
+    // Collision Tracker
+    std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> collisionList;
 
     // Start Timers
     std::clock_t c_start = std::clock();
@@ -211,15 +220,16 @@ EJApp::Run()
         // GLFWPollEvents & resets user input (also manages held keys)
         this->window->Update();
 
-        // For Debugging?
+        // For Debugging? Hot reloading shader changes?
         if (kbd->pressed[Input::Key::Code::End])
         {
             ShaderResource::ReloadShaders();
         }
 
         // Update checks for user input & controls/updates the model
-        racer.Update(dt);
-        racer.CheckCollisions();
+        player.Update(dt);
+        // Currently both CHECKS AND RESOLVES collisions
+        player.CheckCollisions(collisionList);
 
         // Store all drawcalls in the render device
         // Obsticles
@@ -228,7 +238,7 @@ EJApp::Run()
             RenderDevice::Draw(std::get<0>(asteroid), std::get<2>(asteroid));
         }
         // Player Model
-        RenderDevice::Draw(racer.model, racer.transform);
+        RenderDevice::Draw(player.model, player.transform);
 
 
         // Then Execute the entire rendering pipeline

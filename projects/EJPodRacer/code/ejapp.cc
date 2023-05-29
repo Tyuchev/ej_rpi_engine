@@ -104,23 +104,23 @@ EJApp::Run()
     
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
-    const int numLights = 4;
-    Render::PointLightId lights[numLights];
-    // Setup lights
-    for (int i = 0; i < numLights; i++)
-    {
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * 20.0f,
-            Core::RandomFloatNTP() * 20.0f,
-            Core::RandomFloatNTP() * 20.0f
-        );
-        glm::vec3 color = glm::vec3(
-            Core::RandomFloat(),
-            Core::RandomFloat(),
-            Core::RandomFloat()
-        );
-        lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
-    }
+    //const int numLights = 4;
+    //Render::PointLightId lights[numLights];
+    //// Setup lights
+    //for (int i = 0; i < numLights; i++)
+    //{
+        //glm::vec3 translation = glm::vec3(
+            //Core::RandomFloatNTP() * 20.0f,
+            //Core::RandomFloatNTP() * 20.0f,
+            //Core::RandomFloatNTP() * 20.0f
+        //);
+        //glm::vec3 color = glm::vec3(
+            //Core::RandomFloat(),
+            //Core::RandomFloat(),
+            //Core::RandomFloat()
+        //);
+        //lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
+    //}
 
     PodRacer racer;
     racer.model = LoadModel("assets/pod_racing/Models/GLTF format/craft_speederD.glb");
@@ -128,8 +128,7 @@ EJApp::Run()
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
 
-    Mapgen mapgen;
-    mapgen.Generate();
+    Mapgen mapgen(&racer);
 
     // game loop
     while (this->window->IsOpen())
@@ -154,6 +153,7 @@ EJApp::Run()
 
         RenderDevice::Draw(racer.model, racer.transform);
 
+        mapgen.Generate();
         mapgen.Draw();
 
         // Execute the entire rendering pipeline
@@ -165,8 +165,8 @@ EJApp::Run()
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
 
-        if (kbd->pressed[Input::Key::Code::R])
-            mapgen.Generate();
+        //if (kbd->pressed[Input::Key::Code::R])
+            //mapgen.Generate();
 
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();

@@ -3,6 +3,7 @@
 #include "render/model.h"
 #include "render/lightserver.h"
 #include <vector>
+#include "podracer.h"
 
 
 struct MapTile {
@@ -16,13 +17,15 @@ struct MapTile {
 
 class Mapgen {
 public:
-    Mapgen();
+    Mapgen(Game::PodRacer* const player);
     void Generate();
     void Draw();
 
 private:
+    void GenerateStraightRoad(glm::vec3 topLeftPos);
     std::vector<MapTile> tiles;
     std::vector<Render::PointLightId> lights;
+    Game::PodRacer* const player;
     Render::ModelId sidesModelId;
     Render::ModelId obstaclesModelId;
 

@@ -24,10 +24,13 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
     const int LEFT = GRID_WIDTH / 2 - ROAD_WIDTH / 2 - 1;
     const int RIGHT = GRID_WIDTH / 2 + ROAD_WIDTH / 2 + 1;
 
+    glm::vec3 playerOffset(0.0f, 0.0f, -1.0f);
+    glm::vec3 offset = topLeftPos + playerOffset;
+
     // Generate sides
     for (int y = 0; y < GRID_HEIGHT; y++) {
         MapTile left;
-        glm::vec3 leftPos = glm::vec3(LEFT*TILE_SIZE, y*TILE_SIZE, 0.0f);
+        glm::vec3 leftPos = glm::vec3(LEFT*TILE_SIZE, y*TILE_SIZE, 0.0f) + (offset * 0.1f);
         left.model = this->sidesModelId;
         left.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
         left.transform = glm::translate(left.transform, leftPos);
@@ -36,7 +39,7 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
         tiles.push_back(left);
 
         MapTile right;
-        glm::vec3 rightPos = glm::vec3(RIGHT*TILE_SIZE, y*TILE_SIZE, 0.0f);
+        glm::vec3 rightPos = glm::vec3(RIGHT*TILE_SIZE, y*TILE_SIZE, 0.0f) + (offset * 0.1f);
         right.model = this->sidesModelId;
         right.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
         right.transform = glm::translate(right.transform, rightPos);
@@ -54,7 +57,7 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
                 MapTile obstacle;
                 obstacle.model = this->obstaclesModelId;
                 obstacle.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-                obstacle.transform = glm::translate(obstacle.transform, glm::vec3(x*TILE_SIZE, y*TILE_SIZE, 0.0f));
+                obstacle.transform = glm::translate(obstacle.transform, glm::vec3(x*TILE_SIZE, y*TILE_SIZE, 0.0f) + (offset * 0.1f));
                 obstacle.transform = obstacle.transform * glm::rotate(1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
                 tiles.push_back(obstacle);
                 rowcount++;
@@ -66,16 +69,10 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
 
 glm::vec3 lastGeneratedPos;
 void Mapgen::Generate() {
-    float dist = (lastGeneratedPos - player->position).length();
-    printf("%f\n", dist);
-    if (dist > 1.0f) {
-        tiles.erase(tiles.begin(), tiles.end());
-        MapTile obstacle;
-        obstacle.model = this->obstaclesModelId;
-        //obstacle.transform = obstacle.transform * glm::rotate(1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
-        obstacle.transform = glm::translate(obstacle.transform, player->position);
-        obstacle.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-        tiles.push_back(obstacle);
+    float dist = glm::length(player->position - lastGeneratedPos);
+    printf("%f, %f, %f\n", lastGeneratedPos.x, lastGeneratedPos.y, lastGeneratedPos.z);
+    if (dist > 2.0f) {
+        GenerateStraightRoad(player->position);
         lastGeneratedPos = player->position;
     }
 }

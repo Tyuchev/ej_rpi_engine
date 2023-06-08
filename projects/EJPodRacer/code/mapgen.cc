@@ -13,8 +13,8 @@ constexpr int GRID_HEIGHT = 10;
 constexpr int GRID_WIDTH = 10;
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
-    this->sidesModelId = Render::LoadModel("assets/pod_racing/Models/GLTF format/rail.glb");
-    this->obstaclesModelId = Render::LoadModel("assets/pod_racing/Models/GLTF format/rock_largeA.glb");
+    this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
+    this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 }
 
 

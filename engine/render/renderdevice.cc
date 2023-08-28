@@ -3,6 +3,7 @@
 //  (C) 2019 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "config.h"
+#include <GL/glew.h>
 #include "renderdevice.h"
 #include "model.h"
 #include "textureresource.h"

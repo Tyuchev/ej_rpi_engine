@@ -7,6 +7,12 @@
 #include "gltf.h"
 #include "textureresource.h"
 
+#include "GL/glew.h"
+#include <string>
+#include <vector>
+#include "renderdevice.h"
+#include "resourceid.h"
+
 #include "lightserver.h"
 
 namespace Render

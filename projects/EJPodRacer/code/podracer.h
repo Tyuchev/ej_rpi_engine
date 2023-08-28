@@ -1,10 +1,15 @@
 #pragma once
 #include "render/model.h"
 #include "render/physics.h"
+#include "render/input/inputserver.h"
+#include "render/cameramanager.h"
+#include "render/debugrender.h"
+#include "render/particlesystem.h"
 
 #include <vector>
 #include <tuple>
 #include <iostream>
+
 
 namespace Render
 {
@@ -25,9 +30,9 @@ struct PodRacer
     glm::vec3 linearVelocity = glm::vec3(0);
 
     const float normalSpeed = 1.0f;
-    const float boostSpeed = normalSpeed * 2.0f;
-    const float accelerationFactor = 1.0f;
-    const float camOffsetY = 1.0f;
+    const float maxSpeed = normalSpeed * 2.0f;
+    const float acceleration = 1.0f;
+    const float camOffsetY = 2.0f;
     const float cameraSmoothFactor = 10.0f;
 
     float currentSpeed = 0.0f;
@@ -50,7 +55,7 @@ struct PodRacer
     void ResolveCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions) const;
     
 
-    // Hard-coded collision points from the Engines test space simulation
+    // Hard-coded collision points from the Engine's test space simulation
     //
     // const glm::vec3 colliderEndPoints[8] = {
     //     glm::vec3(-1.10657, -0.480347, -0.346542),  // right wing

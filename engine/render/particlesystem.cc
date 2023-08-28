@@ -1,4 +1,5 @@
 #include "config.h"
+#include <GL/glew.h>
 #include "particlesystem.h"
 #include "shaderresource.h"
 #include <algorithm>

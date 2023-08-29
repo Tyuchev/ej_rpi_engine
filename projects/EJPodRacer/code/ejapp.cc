@@ -126,7 +126,7 @@ EJApp::Run()
     racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
 
     ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
-    glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
+    glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
 
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
@@ -156,6 +156,8 @@ EJApp::Run()
 
         RenderDevice::Draw(racer.model, racer.transform);
         RenderDevice::Draw(groundPlane, groundTransform);
+        groundTransform = glm::translate(glm::vec3(racer.position.x, 0.0f, racer.position.z));
+        groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 
         mapgen.Generate();
         mapgen.Draw();

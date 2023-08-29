@@ -6,6 +6,7 @@
 #include "gtc/matrix_transform.hpp" // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include "gtc/quaternion.hpp"
 #include "core/random.h"
+#include <iostream>
 
 constexpr float TILE_SIZE = 1.0f;
 constexpr int ROAD_WIDTH = 3;
@@ -55,7 +56,10 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
         for (int x = RIGHT + 1; x < LEFT; x++) {
             int rowcount = 0;
             // FIXME: Chance is wrong
-            if (rowcount <= ROAD_WIDTH - 1 && Core::RandomFloatNTP() < 0.1) {
+            float r = Core::RandomFloat();
+            printf("%f", r);
+            std::cout << "New: " << r << std::endl;
+            if (rowcount <= ROAD_WIDTH - 1 && r < 0.1f) {
                 MapTile obstacle;
                 obstacle.model = this->obstaclesModelId;
                 obstacle.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
@@ -73,8 +77,8 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
 void Mapgen::Generate() {
     static glm::vec3 lastGeneratedPos = glm::vec3(100.0f, 100.0f, 100.0f);
     float dist = glm::length(player->position - lastGeneratedPos);
-    //printf("%f, %f, %f\n", player->position.x, player->position.y, player->position.z);
     if (dist > 24.0f) {
+        printf("%f, %f, %f\n", player->position.x, player->position.y, player->position.z);
         GenerateStraightRoad(player->position);
         lastGeneratedPos = player->position;
     }

@@ -69,8 +69,9 @@ void Mapgen::GenerateStraightRoad(glm::vec3 topLeftPos) {
 
 }
 
-glm::vec3 lastGeneratedPos;
+// Called every frame
 void Mapgen::Generate() {
+    static glm::vec3 lastGeneratedPos = glm::vec3(100.0f, 100.0f, 100.0f);
     float dist = glm::length(player->position - lastGeneratedPos);
     //printf("%f, %f, %f\n", player->position.x, player->position.y, player->position.z);
     if (dist > 24.0f) {

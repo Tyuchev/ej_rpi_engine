@@ -163,8 +163,8 @@ EJApp::Run()
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);
 
-		// transfer new frame to window
-		this->window->SwapBuffers();
+        // transfer new frame to window
+        this->window->SwapBuffers();
 
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());

@@ -88,62 +88,116 @@ PodRacer::Update(float dt)
         }
     }
 
+    // Sideways motion
+
+    float maxTurn = 30.0f; //In degrees
+    float turningAngle = this->rotationZ / 30.0f;
+    vec3 lateralMotion{0, 0, 0};
+    
+    float bankingDirection = 0.0f;
+    float turnSpeed = 2.0f * dt;
+
+
+    // Model rotations/'banking'
+    if (kbd->held[Key::A])
+    {
+        bankingDirection = -1.0f;
+    }
+    else if (kbd->held[Key::D])
+    {
+        bankingDirection = 1.0f;
+    }
+    else
+    {
+        // if no key held down - lateral movement decay
+        if (rotationZ > 1.0f)
+        {
+            bankingDirection = -1.0f / 4;
+        }
+        else if (rotationZ < -1.0f)
+        {
+            bankingDirection = 1.0f / 4;
+        }
+    }
+
+    bankingDirection*= turnSpeed;
+    // Ensures that rotation cannot go past X degrees
+    if (rotationZ > 29.0f && bankingDirection > 0)
+    {
+        bankingDirection = 0;
+    }
+    else if(rotationZ < -29.0f && bankingDirection < 0)
+    {
+        bankingDirection = 0;
+    }
+
+    // Apply Rotation/Banking to Model
+    this->rotationZ += (bankingDirection / dt);
+    this->rotationZ = clamp(this->rotationZ, -30.0f, 30.0f);
+
+
+    float turnSensitivity = 5;
+    if (rotationZ > turnSensitivity || rotationZ < -turnSensitivity)
+    {
+        lateralMotion.x = (turningAngle * -1) * currentSpeed * 0.5;
+        
+        if(this->currentSpeed < 0)
+        {
+            // Helps Reverse function more like a car would
+            lateralMotion *= -1;
+        }
+    }
+
+
+    // Attempt to make the model fully controlable / rotatable around y-axis
+    float modelRotY = 0;
+
+    // Rotation speed = 90 degree bank = 360 degrees in 4 sec
+    // So 30 degree bank = 360 degrees in 12 sec
+
+    float rotationSpeed = 12.0f / 360.0f;
+    float timeElapsed = dt;
+
+    modelRotY = rotationSpeed * timeElapsed * rotationZ;
+    vec3 yaw{0, 0, modelRotY};
+    std::cout << modelRotY << std::endl;
+
+    
+    // Motion Resolution
+
     vec3 desiredVelocity = vec3(0, 0, this->currentSpeed);
     desiredVelocity = this->transform * vec4(desiredVelocity, 0.0f);
 
     this->linearVelocity = mix(this->linearVelocity, desiredVelocity, dt);
-    this->position += this->linearVelocity * dt * 10.0f;
-
-    // Rotations - OLD ROTATION SYSTEM
-    // float rotX = kbd->held[Key::Left] ? 1.0f : kbd->held[Key::Right] ? -1.0f : 0.0f;
-    // float rotY = kbd->held[Key::Up] ? -1.0f : kbd->held[Key::Down] ? 1.0f : 0.0f;
-    // float rotZ = kbd->held[Key::A] ? -1.0f : kbd->held[Key::D] ? 1.0f : 0.0f;
-    // const float rotationSpeed = 1.8f * dt;
-
-    // movement seems to be smoothed by using GLM::mix
-    // rotXSmooth = mix(rotXSmooth, rotX * rotationSpeed, dt * cameraSmoothFactor);
-    // rotYSmooth = mix(rotYSmooth, rotY * rotationSpeed, dt * cameraSmoothFactor);
-    // rotZSmooth = mix(rotZSmooth, rotZ * rotationSpeed, dt * cameraSmoothFactor);
+    this->position += (this->linearVelocity + lateralMotion) * dt * 10.0f;
 
 
-        // THIS COULD BE USED TO MAKE A NICE 'TILTING' ANIMATION WHEN PLAYER 'BANKS' LEFT/RIGHT
-
-    // quat localOrientation = quat(vec3(-rotYSmooth, rotXSmooth, rotZSmooth));
-
-    // TO DO - ADD IN DT TO SMOOTH OUT ANIMATION - 45 degree
-    
-    
-    float bankingDirection = 0;
-    float turnSpeed = 2.0f * dt;
-    kbd->held[Key::A] ? bankingDirection = -1.0f : kbd->held[Key::D] ? bankingDirection = 1.0f : bankingDirection = 0.0f;
-    bankingDirection *= turnSpeed;
-    float rotZ = bankingDirection;
-
-    // Ensures that rotation cannot go past X degrees
-    if (rotationZ > 29.0f && bankingDirection > 0)
-    {
-        rotZ = 0;
-    }
-    else if(rotationZ < -29.0f && bankingDirection < 0)
-    {
-        rotZ = 0;
-    }
-
-    this->rotationZ += rotZ / dt;
-    this->rotationZ = clamp(this->rotationZ, -30.0f, 30.0f);
-    quat localOrientation = quat(vec3(0, 0, rotZ));
+    // Orient models correctly
+    quat localOrientation = quat(vec3(-modelRotY, 0, bankingDirection));
     this->orientation = this->orientation * localOrientation;
 
     // Set translation matrix by takeing position * orientation
     mat4 T = translate(this->position) * (mat4)this->orientation;
-    this->transform = T * (mat4)quat(vec3(0, 0, rotZ));
-    //this->rotationZ = mix(this->rotationZ, 0.0f, dt * cameraSmoothFactor);
+    this->transform = T * (mat4)quat(vec3(0, 0, bankingDirection));
+
 
     // update camera view transform
     // camera is offset by (0, camOffsetY, -4.0) 
     vec3 desiredCamPos = this->position + vec3(this->transform * vec4(0, camOffsetY, -4.0f, 0));
     this->camPos = mix(this->camPos, desiredCamPos, dt * cameraSmoothFactor);
-    cam->view = lookAt(this->camPos, this->position + vec3(this->transform[2]) * 50.0f, vec3(this->transform[1]));
+
+    // Change 3rd (Up) vector in lookAt function, to change how the camera tilts
+    cam->view = lookAt(this->camPos, this->position + vec3(this->transform[2]) * 50.0f, vec3(0, 1, 0));
+
+
+
+
+
+
+
+
+
+
 
 
     // Particle emitters - OFFLINE - I dont think these are working/full hooked-up

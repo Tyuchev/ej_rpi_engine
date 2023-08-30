@@ -149,18 +149,18 @@ PodRacer::Update(float dt)
     }
 
 
-    // Attempt to make the model fully controlable / rotatable around y-axis
-    float modelRotY = 0;
+    // // Attempt to make the model fully controlable / rotatable around y-axis
+    // float modelRotY = 0;
 
-    // Rotation speed = 90 degree bank = 360 degrees in 4 sec
-    // So 30 degree bank = 360 degrees in 12 sec
+    // // Rotation speed = 90 degree bank = 360 degrees in 4 sec
+    // // So 30 degree bank = 360 degrees in 12 sec
 
-    float rotationSpeed = 12.0f / 360.0f;
-    float timeElapsed = dt;
+    // float rotationSpeed = 12.0f / 360.0f;
+    // float timeElapsed = dt;
 
-    modelRotY = rotationSpeed * timeElapsed * rotationZ;
-    vec3 yaw{0, 0, modelRotY};
-    std::cout << modelRotY << std::endl;
+    // modelRotY = rotationSpeed * timeElapsed * rotationZ;
+    // vec3 yaw{0, 0, modelRotY};
+    // std::cout << modelRotY << std::endl;
 
     
     // Motion Resolution
@@ -173,7 +173,7 @@ PodRacer::Update(float dt)
 
 
     // Orient models correctly
-    quat localOrientation = quat(vec3(-modelRotY, 0, bankingDirection));
+    quat localOrientation = quat(vec3(0, 0, bankingDirection));
     this->orientation = this->orientation * localOrientation;
 
     // Set translation matrix by takeing position * orientation

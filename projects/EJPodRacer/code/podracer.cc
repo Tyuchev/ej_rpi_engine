@@ -88,14 +88,8 @@ PodRacer::Update(float dt)
         }
     }
 
-    // Sideways motion
-
-    float maxTurn = 30.0f; //In degrees
-    float turningAngle = this->rotationZ / 30.0f;
-    vec3 lateralMotion{0, 0, 0};
-    
     float bankingDirection = 0.0f;
-    float turnSpeed = 2.0f * dt;
+
 
 
     // Model rotations/'banking'
@@ -112,34 +106,43 @@ PodRacer::Update(float dt)
         // if no key held down - lateral movement decay
         if (rotationZ > 1.0f)
         {
-            bankingDirection = -1.0f / 4;
+            bankingDirection = -1.0f / 2;
         }
         else if (rotationZ < -1.0f)
         {
-            bankingDirection = 1.0f / 4;
+            bankingDirection = 1.0f / 2;
         }
     }
 
-    bankingDirection*= turnSpeed;
+    //bankingDirection*= dt;
     // Ensures that rotation cannot go past X degrees
-    if (rotationZ > 29.0f && bankingDirection > 0)
-    {
-        bankingDirection = 0;
-    }
-    else if(rotationZ < -29.0f && bankingDirection < 0)
-    {
-        bankingDirection = 0;
-    }
+    // if (rotationZ > 29.0f && bankingDirection > 0)
+    // {
+    //     bankingDirection = 0;
+    // }
+    // else if(rotationZ < -29.0f && bankingDirection < 0)
+    // {
+    //     bankingDirection = 0;
+    // }
 
+    float maxTurn = 45.0f; //In degrees
     // Apply Rotation/Banking to Model
-    this->rotationZ += (bankingDirection / dt);
-    this->rotationZ = clamp(this->rotationZ, -30.0f, 30.0f);
+    float prevRotationZ = rotationZ;;
+    this->rotationZ += (bankingDirection * 2);
+    this->rotationZ = clamp(this->rotationZ, -maxTurn, maxTurn);
+    
+    float rotationZChange = this->rotationZ - prevRotationZ;
+    float smoothRotationZChange = rotationZChange * dt;
 
+    float lateralTurnSpeed = 1.0f;
+    float turnAngle = this->rotationZ / maxTurn;
+
+    vec3 lateralMotion{0, 0, 0};
 
     float turnSensitivity = 5;
     if (rotationZ > turnSensitivity || rotationZ < -turnSensitivity)
     {
-        lateralMotion.x = (turningAngle * -1) * currentSpeed * 0.5;
+        lateralMotion.x = (turnAngle * -1) * lateralTurnSpeed * currentSpeed;
         
         if(this->currentSpeed < 0)
         {
@@ -173,12 +176,12 @@ PodRacer::Update(float dt)
 
 
     // Orient models correctly
-    quat localOrientation = quat(vec3(0, 0, bankingDirection));
+    quat localOrientation = quat(vec3(0, 0, smoothRotationZChange));
     this->orientation = this->orientation * localOrientation;
 
     // Set translation matrix by takeing position * orientation
     mat4 T = translate(this->position) * (mat4)this->orientation;
-    this->transform = T * (mat4)quat(vec3(0, 0, bankingDirection));
+    this->transform = T * (mat4)quat(vec3(0, 0, smoothRotationZChange));
 
 
     // update camera view transform

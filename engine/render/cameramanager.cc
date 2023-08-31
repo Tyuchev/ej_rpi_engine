@@ -5,6 +5,7 @@
 #include "config.h"
 #include "cameramanager.h"
 #include <unordered_map>
+#include <vector>
 
 namespace Render
 {
@@ -28,8 +29,11 @@ namespace CameraManager
 	/// cameramanager singleton state
 	struct State
 	{
-		CameraState cameras[32];
+		// size to 32
+		std::vector<CameraState*> cameras;
 		unsigned char numCameras = 0;
+
+		Camera* activeCamera = nullptr;
 
 		std::unordered_map<uint32_t, uint32_t> cameraTable;
 	};
@@ -45,6 +49,8 @@ CameraManager::Create()
 {
 	assert(state == nullptr);
 	state = new(State);
+
+	state->cameras.resize(32, nullptr);
 
 	// setup default cameras
 	CameraCreateInfo cameraInfo;
@@ -65,17 +71,19 @@ CameraManager::CameraState DeriveCameraState(glm::mat4 view, glm::mat4 projectio
 }
 
 //------------------------------------------------------------------------------
-/**
+/**	
 */
 Camera* const
 CameraManager::CreateCamera(CameraCreateInfo const& info)
 {
 	state->cameraTable.emplace(info.hash, state->numCameras);
-	assert(state->numCameras + 1 < 32);
-	CameraState& camera = state->cameras[state->numCameras++];
+	//assert(state->numCameras + 1 < 32);
+	CameraState camera = state->cameras[state->numCameras++];
 	camera = DeriveCameraState(info.view, info.projection);
 	return reinterpret_cast<Camera*>(&camera);
+	
 }
+
 
 //------------------------------------------------------------------------------
 /**
@@ -89,10 +97,62 @@ CameraManager::UpdateCamera(Camera* const camera)
 //------------------------------------------------------------------------------
 /**
 */
+
+Camera* const
+CameraManager::GetActiveCamera()
+{
+	State state;
+	return state.activeCamera;
+}
+
 Camera* const
 CameraManager::GetCamera(uint32_t CAMERA_HASH)
 {
 	return reinterpret_cast<Camera*>(&state->cameras[state->cameraTable[CAMERA_HASH]]);
+}
+
+Camera* const
+CameraManager::SetActiveCamera(uint32_t CAMERA_HASH)
+{
+	State state;
+	
+	if (state.numCameras < 2)
+	{
+		return state.activeCamera;
+	}
+
+	state.activeCamera = CameraManager::GetCamera(CAMERA_HASH);
+
+	return state.activeCamera;
+
+}
+
+Camera* const
+CameraManager::ChangeActiveCamera()
+{
+	State state;
+	
+	if (state.numCameras < 2)
+	{
+		return state.activeCamera;
+	}
+
+	for (auto cameraState : state.cameras)
+	{
+		if (true) // cameraState Is not junk
+		{
+
+		}
+
+		Camera* currentIndexCamera = reinterpret_cast<Camera*>(&cameraState);
+		if (state.activeCamera == currentIndexCamera)
+		{
+			//swap to next
+		}
+	}
+
+	return state.activeCamera;
+
 }
 
 //------------------------------------------------------------------------------
@@ -115,9 +175,10 @@ CameraManager::OnBeforeRender()
 	index_t i;
 	for (i = 0; i < state->numCameras; i++)
 	{
-		glm::mat4 const view = state->cameras[i].view;
-		glm::mat4 const projection = state->cameras[i].projection;
-		state->cameras[i] = DeriveCameraState(view, projection);
+		glm::mat4 const view = state->cameras[i]->view;
+		glm::mat4 const projection = state->cameras[i]->projection;
+		CameraState temp = DeriveCameraState(view, projection);
+		state->cameras[i] = &temp;
 	}
 }
 

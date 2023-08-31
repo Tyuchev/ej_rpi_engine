@@ -87,8 +87,14 @@ EJApp::Run()
 
     // Camera setup
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), float(w) / float(h), 0.01f, 1000.f);
-    Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
-    cam->projection = projection;
+    Camera* mainCam = CameraManager::GetCamera(CAMERA_MAIN);
+    mainCam->projection = projection;
+
+    Render::CameraCreateInfo topCamInfo;
+    topCamInfo.hash = 0; topCamInfo.view = mainCam->view; topCamInfo.projection = mainCam->projection;
+
+    Camera* topDownCam = CameraManager::CreateCamera(topCamInfo);
+    topDownCam->projection = projection;
 
 
     // Load Player Data
@@ -250,6 +256,11 @@ EJApp::Run()
 
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
+
+        if (kbd->pressed[Input::Key::Code::P])
+        {
+            
+        }
 
         // Exit Program
         if (kbd->pressed[Input::Key::Code::Escape])

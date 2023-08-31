@@ -8,6 +8,8 @@
 */
 //------------------------------------------------------------------------------
 
+#include <vector>
+
 namespace Render
 {
 #define CAMERA_MAIN uint32_t('DFCM')
@@ -52,6 +54,10 @@ namespace CameraManager
 
 	/// get a camera by hash
 	Camera* const GetCamera(uint32_t CAMERA_HASH);
+	Camera* const GetActiveCamera();
+	Camera* const SetActiveCamera(uint32_t CAMERA_HASH);
+
+	Camera* const ChangeActiveCamera();
 
 	void Destroy();
 	void OnBeforeRender();

@@ -88,9 +88,8 @@ PodRacer::Update(float dt)
         }
     }
 
+
     float bankingDirection = 0.0f;
-
-
 
     // Model rotations/'banking'
     if (kbd->held[Key::A])

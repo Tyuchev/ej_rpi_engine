@@ -137,18 +137,24 @@ CameraManager::ChangeActiveCamera()
 		return state.activeCamera;
 	}
 
+	CameraManager::CameraState* previousFound;
 	for (auto cameraState : state.cameras)
 	{
-		if (true) // cameraState Is not junk
+		if (cameraState) // cameraState Is not junk
 		{
+			
+			Camera* currentIndexCamera = reinterpret_cast<Camera*>(&cameraState);
+			if (state.activeCamera == currentIndexCamera)
+			{
+				//swap to next
 
+				
+			}
+			
+			previousFound = cameraState;
 		}
 
-		Camera* currentIndexCamera = reinterpret_cast<Camera*>(&cameraState);
-		if (state.activeCamera == currentIndexCamera)
-		{
-			//swap to next
-		}
+
 	}
 
 	return state.activeCamera;

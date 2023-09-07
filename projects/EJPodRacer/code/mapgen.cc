@@ -19,6 +19,19 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
 
 Chunk Mapgen::GetStraightRoadChunk() {
     Chunk chunk;
+
+    //for (int z = 0; z < CHUNK_LENGTH; z++) {
+        //for (int x = 0; x < CHUNK_WIDTH; x++) {
+            //MapTile tile;
+            //glm::vec3 pos = glm::vec3(x*TILE_SIZE, 0.0, z*TILE_SIZE);
+            //tile.model = this->sidesModelId;
+            //tile.position = pos;
+            //tile.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
+            //tile.transform = glm::translate(tile.transform, pos);
+            //chunk.tiles[z][x] = tile;
+        //}
+    //}
+    //return chunk;
     
     const int RIGHT = CHUNK_WIDTH / 2 - ROAD_WIDTH / 2 - 1;
     const int LEFT = CHUNK_WIDTH / 2 + ROAD_WIDTH / 2 + 1;
@@ -75,7 +88,8 @@ void Mapgen::Generate() {
     glm::vec3 gen_pos = no_y_player_pos + playerOffset;
     float dist = glm::length(gen_pos - lastGeneratedPos);
     if (dist > 24.0f) {
-        chunks[0].position = gen_pos;
+        // TODO: Actual chunk generation.
+        chunks[0].position = gen_pos * 0.1f;
         lastGeneratedPos = gen_pos;
     }
 }
@@ -90,8 +104,11 @@ void Mapgen::Draw() {
 void Chunk::Draw() const {
     for (int z = 0; z < CHUNK_LENGTH; z++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
-            glm::mat4 rel_transform = glm::translate(tiles[z][x].transform, position);
-            Render::RenderDevice::Draw(tiles[z][x].model, rel_transform);
+            // FIXME: Fix Model::IsModelValid() needed, then implement that here.
+            if (tiles[z][x].model < 9000) {
+                glm::mat4 rel_transform = glm::translate(tiles[z][x].transform, position);
+                Render::RenderDevice::Draw(tiles[z][x].model, rel_transform);
+            }
         }
     }
 }

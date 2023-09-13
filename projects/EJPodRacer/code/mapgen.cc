@@ -17,61 +17,43 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
 }
 
 
+Chunk Mapgen::GetFilledRoadChunk() {
+    Chunk chunk;
+
+    for (int z = 0; z < CHUNK_LENGTH; z++) {
+        for (int x = 0; x < CHUNK_WIDTH; x++) {
+            MapTile tile;
+            glm::vec3 pos = glm::vec3(x*TILE_SIZE, 0.0, z*TILE_SIZE);
+            tile.model = this->sidesModelId;
+            tile.position = pos;
+            tile.transform = glm::scale(glm::mat4(1), glm::vec3(TILE_SCALE));
+            tile.transform = glm::translate(tile.transform, pos);
+            chunk.tiles[z][x] = tile;
+        }
+    }
+    return chunk;
+}
+
 Chunk Mapgen::GetStraightRoadChunk() {
     Chunk chunk;
 
-    //for (int z = 0; z < CHUNK_LENGTH; z++) {
-        //for (int x = 0; x < CHUNK_WIDTH; x++) {
-            //MapTile tile;
-            //glm::vec3 pos = glm::vec3(x*TILE_SIZE, 0.0, z*TILE_SIZE);
-            //tile.model = this->sidesModelId;
-            //tile.position = pos;
-            //tile.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-            //tile.transform = glm::translate(tile.transform, pos);
-            //chunk.tiles[z][x] = tile;
-        //}
-    //}
-    //return chunk;
-    
-    const int RIGHT = CHUNK_WIDTH / 2 - ROAD_WIDTH / 2 - 1;
-    const int LEFT = CHUNK_WIDTH / 2 + ROAD_WIDTH / 2 + 1;
-
+    // 0 is leftmost tile
+    const int RIGHT = 2;
+    const int LEFT = 6;
 
     // Generate sides
     for (int z = 0; z < CHUNK_LENGTH; z++) {
         MapTile left;
-        glm::vec3 leftPos = glm::vec3(LEFT*TILE_SIZE, 0.0f, z*TILE_SIZE);
+        glm::vec3 pos = glm::vec3(LEFT*TILE_SIZE, 0.0, z*TILE_SIZE);
         left.model = this->sidesModelId;
-        left.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-        left.transform = glm::translate(left.transform, leftPos);
+        left.position = pos;
+        left.transform = glm::scale(glm::mat4(1), glm::vec3(TILE_SCALE));
         // 1.5708 = pi/2 = 90 deg
-        left.transform = left.transform * glm::rotate(1.5708f, glm::vec3(0.0f, 1.0f, 0.0f));
-        chunk.tiles[z][0] = left;
-
-        MapTile right;
-        glm::vec3 rightPos = glm::vec3(RIGHT*TILE_SIZE, 0.0f, z*TILE_SIZE);
-        right.model = this->sidesModelId;
-        right.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-        right.transform = glm::translate(right.transform, rightPos);
-        right.transform = right.transform * glm::rotate(1.5708f, glm::vec3(0.0f, 1.0f, 0.0f));
-        chunk.tiles[z][CHUNK_WIDTH-1] = right;
+        left.transform *= glm::rotate(1.5708f, glm::vec3(0.0f, 1.0f, 0.0f));
+        left.transform = glm::translate(left.transform, pos);
+        chunk.tiles[z][LEFT] = left;
     }
 
-    // Generate road + obstacles
-    for (int z = 0; z < CHUNK_LENGTH; z++) {
-        for (int x = RIGHT + 1; x < LEFT; x++) {
-            int rowcount = 0;
-            if (rowcount <= ROAD_WIDTH - 1 && Core::RandomFloat() < 0.1f) {
-                MapTile obstacle;
-                obstacle.model = this->obstaclesModelId;
-                obstacle.transform = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 10.0f));
-                obstacle.transform = glm::translate(obstacle.transform, glm::vec3(x*TILE_SIZE, 0.0f, z*TILE_SIZE));
-                obstacle.transform = obstacle.transform * glm::rotate(1.5708f, glm::vec3(0.0f, 1.0f, 0.0f));
-                chunk.tiles[z][x] = obstacle;
-                rowcount++;
-            }
-        }
-    }
 
     return chunk;
 }
@@ -84,7 +66,7 @@ void Mapgen::Generate() {
     // +x is left of spawn position 
     // +y is up of spawn position
     // +z is forward of spawn position
-    glm::vec3 playerOffset(-52.5f, -1.0f, 1.0f);
+    glm::vec3 playerOffset(-40.0f, -1.0f, 1.0f); // Centered
     glm::vec3 gen_pos = no_y_player_pos + playerOffset;
     float dist = glm::length(gen_pos - lastGeneratedPos);
     if (dist > 24.0f) {
@@ -104,7 +86,7 @@ void Mapgen::Draw() {
 void Chunk::Draw() const {
     for (int z = 0; z < CHUNK_LENGTH; z++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
-            // FIXME: Fix Model::IsModelValid() needed, then implement that here.
+            // TODO: If Fix Model::IsModelValid() is made, then use that here.
             if (tiles[z][x].model < 9000) {
                 glm::mat4 rel_transform = glm::translate(tiles[z][x].transform, position);
                 Render::RenderDevice::Draw(tiles[z][x].model, rel_transform);

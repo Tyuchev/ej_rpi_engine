@@ -8,6 +8,7 @@
 constexpr int CHUNK_WIDTH = 9;
 constexpr int CHUNK_LENGTH = 9;
 constexpr float TILE_SIZE = 1.0f; 
+constexpr float TILE_SCALE = 10.0f;
 constexpr int ROAD_WIDTH = 3;
 
 struct MapTile {
@@ -21,7 +22,7 @@ struct MapTile {
 
 class Chunk {
 public:
-    glm::vec3 position = glm::vec3(0);
+    glm::vec3 position = glm::vec3(0.0f);
     MapTile tiles[CHUNK_LENGTH][CHUNK_WIDTH];
 
     void Draw() const;
@@ -35,6 +36,7 @@ public:
 
 private:
     Chunk GetStraightRoadChunk();
+    Chunk GetFilledRoadChunk();
 
     std::vector<Chunk> chunks;
     std::vector<Render::PointLightId> lights;

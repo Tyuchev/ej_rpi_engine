@@ -21,6 +21,7 @@
 #include <chrono>
 #include "podracer.h"
 #include "mapgen.h"
+#include "gameobject.h"
 
 using namespace Display;
 using namespace Render;
@@ -125,13 +126,26 @@ EJApp::Run()
     PodRacer racer;
     racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
 
-    ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
-    glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
+    //ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
+    //glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
+
+    // Game Object testing
+    ModelId testModel = LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
+    GameObject testGO;
+    testGO.SetModel(testModel);
+    testGO.transform.Scale(glm::vec3(5.0f));
+
+    ModelId testModel2 = LoadModel("assets/pod_racer/Models/GLTF format/desk_computer.glb");
+    GameObject testGO2;
+    testGO2.SetModel(testModel2);
+    testGO2.transform.Scale(glm::vec3(3.0f));
+    testGO2.transform.Translate(glm::vec3(-6.0f, 0.0f, 0.0f));
+    testGO.transform.AttachChild(testGO2.transform);
 
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
 
-    Mapgen mapgen(&racer);
+    //Mapgen mapgen(&racer);
 
     // game loop
     while (this->window->IsOpen())
@@ -154,13 +168,43 @@ EJApp::Run()
 
         // Store all drawcalls in the render device
 
-        RenderDevice::Draw(racer.model, racer.transform);
-        RenderDevice::Draw(groundPlane, groundTransform);
-        groundTransform = glm::translate(glm::vec3(racer.position.x, -1.0f, racer.position.z));
-        groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
+        //RenderDevice::Draw(racer.model, racer.transform);
+        //RenderDevice::Draw(groundPlane, groundTransform);
+        //groundTransform = glm::translate(glm::vec3(racer.position.x, -1.0f, racer.position.z));
+        //groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 
-        mapgen.Generate();
-        mapgen.Draw();
+        // Game Object test
+        {
+            static float t = 0.0f;
+            float r = 5.0f;
+            float speed = 0.01f;
+            // Translation test
+            {
+                //testGO.transform.SetPos(glm::vec3(r * glm::sin(t), 0.0f, r * glm::cos(t)));
+                //testGO.transform.SetPos(glm::vec3(r * glm::sin(t), r * glm::cos(t), 0.0f));
+                //testGO.transform.SetPos(glm::vec3(0.0f, r * glm::sin(t), r * glm::cos(t)));
+            }
+            // Rotation test
+            {
+                testGO.transform.Rotate(glm::vec3(1.0f, 0.0f, 0.0f), speed);
+                //testGO.transform.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), speed);
+                //testGO.transform.Rotate(glm::vec3(0.0f, 0.0f, 1.0f), speed);
+            }
+            // Scaling test
+            {
+                //testGO.transform.Scale(r * glm::vec3(glm::sin(t)));
+            }
+            
+            t += speed;
+            if (t >= 3.14159265359 * 2) {
+                t = 0.0f;
+            }
+            testGO.Draw();
+            testGO2.Draw();
+        }
+
+        //mapgen.Generate();
+        //mapgen.Draw();
 
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);

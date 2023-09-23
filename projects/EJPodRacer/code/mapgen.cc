@@ -20,6 +20,7 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
 
 GameObject Mapgen::GetFilledRoadChunk() {
     GameObject chunk;
+    chunk.model = Render::LoadModel("assets/pod_racer/Models/GLTF format/machine_generatorLarge.glb");
 
     for (int z = 0; z < CHUNK_LENGTH; z++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
@@ -52,26 +53,22 @@ GameObject Mapgen::GetStraightRoadChunk() {
         left.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 1.5708f);
         chunk.AttachChild(left);
     }
-
-
     return chunk;
 }
 
 
 // Called every frame
 void Mapgen::Generate() {
-    static glm::vec3 lastGeneratedPos = glm::vec3(100.0f, 100.0f, 100.0f);
-    glm::vec3 no_y_player_pos = glm::vec3(player->position.x, -1.0f, player->position.z);
-    // +x is left of spawn position 
+    // +x is left of spawn position
     // +y is up of spawn position
     // +z is forward of spawn position
-    glm::vec3 playerOffset(-40.0f, -1.0f, 1.0f); // Centered
-    glm::vec3 gen_pos = no_y_player_pos + playerOffset;
-    float dist = glm::length(gen_pos - lastGeneratedPos);
-    if (dist > 24.0f) {
-        // TODO: Actual chunk generation.
-        chunks[0].SetPos(gen_pos * 0.1f);
-        lastGeneratedPos = gen_pos;
+    static bool genned = false;
+    if (!genned) {
+        genned = true;
+        glm::vec3 centerOffset(TILE_SIZE * CHUNK_WIDTH / 2, 0.0f, TILE_SIZE * CHUNK_LENGTH / 2);
+        centerOffset -= glm::vec3(TILE_SIZE / 2, 0.0f, TILE_SIZE / 2);
+        glm::vec3 genPos = -centerOffset;
+        chunks[0].SetPos(genPos);
     }
 }
 

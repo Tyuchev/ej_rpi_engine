@@ -49,8 +49,6 @@ public:
     virtual void Draw() const;
     virtual void Update(float deltaTime) {};
 
-    void SetModel(const Render::ModelId& model);
-
 
 private:
     void Render(glm::mat4 ctm) const;

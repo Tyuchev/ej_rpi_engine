@@ -58,10 +58,6 @@ GameObject::GameObject() {
     model = INVALID_MODEL_ID;
 }
 
-void GameObject::SetModel(const Render::ModelId& model) {
-    this->model = model;
-}
-
 void GameObject::Draw() const {
     if (!isActive) 
         return;

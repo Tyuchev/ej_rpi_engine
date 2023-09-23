@@ -135,11 +135,40 @@ EJApp::Run()
 
     Mapgen mapgen(&racer);
 
-    //DebugDraw* debugDrawInstance = DebugDraw::Instance();
-    //float step = 2 * 3.1415 / 10;
-    //for (int i = 0; i < 10; i++) {
-        //glm::vec3 dir(sin(step*i), 0.0f, cos(step*i));
-        //DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
+    DebugDraw* debugDrawInstance = DebugDraw::Instance();
+    // Debug draw tests
+    //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // +x is left of spawn origin
+    // +y is up of spawn origin
+    // +z is forward of spawn origin
+    {
+        //DebugDraw::ArrowStraight(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.0f, 1.0f)); // forward
+        //DebugDraw::ArrowStraight(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)); // right
+        //DebugDraw::ArrowStraight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // back
+        //DebugDraw::ArrowStraight(glm::vec3(-5.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // left
+        //DebugDraw::ArrowStraight(glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // up
+        //DebugDraw::ArrowStraight(glm::vec3(-15.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)); // down
+    }
+    //{
+        //float step = 2.0f * 3.1415f / 40.0f;
+        //for (int i = 0; i < 40; i++) {
+            //glm::vec3 dir(sin(step*i), 0.0f, cos(step*i));
+            //glm::vec3 pos = dir * 10.0f;
+            //DebugDraw::ArrowStraightOffset(pos, dir);
+            ////DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
+            ////DebugDraw::ArrowStraight(glm::vec3(5.0f * i, 0.0f, 0.0f), dir);
+        //}
+    //}
+    //{
+        //float range = 10.0f;
+        //float step = 1.0f;
+        //for (float f = -range; f >= range; f += step) {
+            //glm::vec3 dir(1.0f, 0.0f, f);
+            //dir = glm::normalize(dir);
+            ////DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
+            //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            
+        //}
     //}
 
     // game loop
@@ -164,14 +193,14 @@ EJApp::Run()
         // Store all drawcalls in the render device
 
         RenderDevice::Draw(racer.model, racer.transform);
-        RenderDevice::Draw(groundPlane, groundTransform);
+        //RenderDevice::Draw(groundPlane, groundTransform);
         groundTransform = glm::translate(glm::vec3(racer.position.x, -1.0f, racer.position.z));
         groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 
 
         mapgen.Generate();
         mapgen.Draw();
-        //debugDrawInstance->Draw();
+        debugDrawInstance->Draw();
 
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);

@@ -59,9 +59,9 @@ GameObject Mapgen::GetStraightRoadChunk() {
 
 // Called every frame
 void Mapgen::Generate() {
-    // +x is left of spawn position
-    // +y is up of spawn position
-    // +z is forward of spawn position
+    // +x is left of spawn origin
+    // +y is up of spawn origin
+    // +z is forward of spawn origin
     static bool genned = false;
     if (!genned) {
         genned = true;

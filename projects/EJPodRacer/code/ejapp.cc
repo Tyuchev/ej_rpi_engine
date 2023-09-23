@@ -133,14 +133,14 @@ EJApp::Run()
     ModelId testModel = LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
     GameObject testGO;
     testGO.SetModel(testModel);
-    testGO.transform.Scale(glm::vec3(5.0f));
+    testGO.Scale(glm::vec3(5.0f));
 
     ModelId testModel2 = LoadModel("assets/pod_racer/Models/GLTF format/desk_computer.glb");
     GameObject testGO2;
     testGO2.SetModel(testModel2);
-    testGO2.transform.Scale(glm::vec3(3.0f));
-    testGO2.transform.Translate(glm::vec3(-6.0f, 0.0f, 0.0f));
-    testGO.transform.AttachChild(testGO2.transform);
+    testGO2.Scale(glm::vec3(3.0f));
+    testGO2.Translate(glm::vec3(-6.0f, 0.0f, 0.0f));
+    testGO.AttachChild(testGO2);
 
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
@@ -180,19 +180,19 @@ EJApp::Run()
             float speed = 0.01f;
             // Translation test
             {
-                //testGO.transform.SetPos(glm::vec3(r * glm::sin(t), 0.0f, r * glm::cos(t)));
-                //testGO.transform.SetPos(glm::vec3(r * glm::sin(t), r * glm::cos(t), 0.0f));
-                //testGO.transform.SetPos(glm::vec3(0.0f, r * glm::sin(t), r * glm::cos(t)));
+                testGO.SetPos(glm::vec3(r * glm::sin(t), 0.0f, r * glm::cos(t)));
+                //testGO.SetPos(glm::vec3(r * glm::sin(t), r * glm::cos(t), 0.0f));
+                //testGO.SetPos(glm::vec3(0.0f, r * glm::sin(t), r * glm::cos(t)));
             }
             // Rotation test
             {
-                testGO.transform.Rotate(glm::vec3(1.0f, 0.0f, 0.0f), speed);
-                //testGO.transform.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), speed);
-                //testGO.transform.Rotate(glm::vec3(0.0f, 0.0f, 1.0f), speed);
+                testGO.Rotate(glm::vec3(1.0f, 0.0f, 0.0f), speed);
+                //testGO.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), speed);
+                //testGO.Rotate(glm::vec3(0.0f, 0.0f, 1.0f), speed);
             }
             // Scaling test
             {
-                //testGO.transform.Scale(r * glm::vec3(glm::sin(t)));
+                //testGO.Scale(r * glm::vec3(glm::sin(t)));
             }
             
             t += speed;
@@ -200,7 +200,6 @@ EJApp::Run()
                 t = 0.0f;
             }
             testGO.Draw();
-            testGO2.Draw();
         }
 
         //mapgen.Generate();

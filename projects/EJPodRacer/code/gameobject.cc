@@ -2,44 +2,35 @@
 #include "gameobject.h"
 #include "render/renderdevice.h"
 
-void Transform::Translate(glm::vec3 dir) {
-	model = model * glm::translate(dir);
-    for (Transform child : children) {
-        child.model = child.model * model;
-    }
+void GameObject::Translate(glm::vec3 dir) {
+	transformMat = transformMat * glm::translate(dir);
 }
 
-void Transform::Rotate(glm::vec3 axis, float rad) {
-	model = model * glm::rotate(rad, axis);
-    for (Transform child : children) {
-        child.model = child.model * model;
-    }
+void GameObject::Rotate(glm::vec3 axis, float rad) {
+	transformMat = transformMat * glm::rotate(rad, axis);
 }
 
-glm::vec3 Transform::GetPos() {
+glm::vec3 GameObject::GetPos() {
 	// first three elements of last column
-	return glm::vec3(model[3][0], model[3][1], model[3][2]);
+	return glm::vec3(transformMat[3][0], transformMat[3][1], transformMat[3][2]);
 }
 
-void Transform::SetPos(glm::vec3 pos) {
+void GameObject::SetPos(glm::vec3 pos) {
     // first three elements of last column
-    model[3][0] = pos.x;
-    model[3][1] = pos.y;
-    model[3][2] = pos.z;
-    for (Transform child : children) {
-        child.model = child.model * model;
-    }
+    transformMat[3][0] = pos.x;
+    transformMat[3][1] = pos.y;
+    transformMat[3][2] = pos.z;
 }
 
-void Transform::Scale(glm::vec3 amount) {
-	scaling = glm::scale(amount);
+void GameObject::Scale(glm::vec3 amount) {
+	scalingMat = glm::scale(amount);
 }
 
-void Transform::AttachChild(Transform& child) {
+void GameObject::AttachChild(GameObject& child) {
     this->children.push_back(child);
 }
 
-void Transform::DetachChild(Transform& child) {
+void GameObject::DetachChild(GameObject& child) {
     for (int i = 0; i < children.size(); i++) {
         if (&children[i] == &child) {
             children.erase(children.begin() + i);
@@ -48,14 +39,14 @@ void Transform::DetachChild(Transform& child) {
     }
 }
 
-void Transform::DetachParent() {
+void GameObject::DetachParent() {
     if (parent != nullptr) {
         parent->DetachChild(*this);
         parent = nullptr;
     }
 }
 
-void Transform::AttachParent(Transform& parent) {
+void GameObject::AttachParent(GameObject& parent) {
     this->DetachParent();
     this->parent = &parent;
 }
@@ -72,7 +63,16 @@ void GameObject::SetModel(const Render::ModelId& model) {
 }
 
 void GameObject::Draw() {
-    // TODO: Is active?
-    glm::mat4 mat = transform.model * transform.scaling;
-    Render::RenderDevice::Draw(model, mat);
+    if (!isActive) 
+        return;
+    Render(glm::mat4(1.0f));
+}
+
+void GameObject::Render(glm::mat4 ctm) {
+    ctm = ctm * transformMat;
+    // Children's scaling is independent of parent's for now.
+    Render::RenderDevice::Draw(model, ctm * scalingMat);
+    for(GameObject child : children) {
+        child.Render(ctm);
+    }
 }

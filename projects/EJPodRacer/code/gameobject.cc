@@ -28,6 +28,7 @@ void GameObject::Scale(glm::vec3 amount) {
 
 void GameObject::AttachChild(GameObject& child) {
     this->children.push_back(child);
+    AttachParent(*this);
 }
 
 void GameObject::DetachChild(GameObject& child) {
@@ -52,10 +53,10 @@ void GameObject::AttachParent(GameObject& parent) {
 }
 
 
-// ------------ GameObject ------------ 
-
 GameObject::GameObject() {
     model = INVALID_MODEL_ID;
+    children = std::vector<GameObject>();
+    parent = nullptr;
 }
 
 void GameObject::Draw() const {
@@ -66,8 +67,8 @@ void GameObject::Draw() const {
 
 void GameObject::Render(glm::mat4 ctm) const {
     ctm = ctm * transformMat;
-    // Children's scaling is independent of parent's for now.
-    if (model != INVALID_MODEL_ID) {
+    if (model < INVALID_MODEL_ID) {
+        // Children's scaling is independent of parent's for now.
         Render::RenderDevice::Draw(model, ctm * scalingMat);
     }
     for(GameObject child : children) {

@@ -22,6 +22,7 @@
 #include "podracer.h"
 #include "mapgen.h"
 #include "gameobject.h"
+#include "debugdraw.h"
 
 using namespace Display;
 using namespace Render;
@@ -134,6 +135,13 @@ EJApp::Run()
 
     Mapgen mapgen(&racer);
 
+    //DebugDraw* debugDrawInstance = DebugDraw::Instance();
+    //float step = 2 * 3.1415 / 10;
+    //for (int i = 0; i < 10; i++) {
+        //glm::vec3 dir(sin(step*i), 0.0f, cos(step*i));
+        //DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
+    //}
+
     // game loop
     while (this->window->IsOpen())
 	{
@@ -163,6 +171,7 @@ EJApp::Run()
 
         mapgen.Generate();
         mapgen.Draw();
+        //debugDrawInstance->Draw();
 
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);

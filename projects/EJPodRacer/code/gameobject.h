@@ -46,14 +46,14 @@ public:
 
     GameObject();
 
-    virtual void Draw();
+    virtual void Draw() const;
     virtual void Update(float deltaTime) {};
 
     void SetModel(const Render::ModelId& model);
 
 
 private:
-    void Render(glm::mat4 ctm);
+    void Render(glm::mat4 ctm) const;
 	glm::mat4 transformMat = glm::mat4(1.0f);
 	glm::mat4 scalingMat = glm::mat4(1.0f);
 };

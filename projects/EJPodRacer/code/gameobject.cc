@@ -62,16 +62,18 @@ void GameObject::SetModel(const Render::ModelId& model) {
     this->model = model;
 }
 
-void GameObject::Draw() {
+void GameObject::Draw() const {
     if (!isActive) 
         return;
     Render(glm::mat4(1.0f));
 }
 
-void GameObject::Render(glm::mat4 ctm) {
+void GameObject::Render(glm::mat4 ctm) const {
     ctm = ctm * transformMat;
     // Children's scaling is independent of parent's for now.
-    Render::RenderDevice::Draw(model, ctm * scalingMat);
+    if (model != INVALID_MODEL_ID) {
+        Render::RenderDevice::Draw(model, ctm * scalingMat);
+    }
     for(GameObject child : children) {
         child.Render(ctm);
     }

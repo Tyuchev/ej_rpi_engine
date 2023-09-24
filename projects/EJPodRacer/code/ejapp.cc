@@ -193,7 +193,7 @@ EJApp::Run()
         // Store all drawcalls in the render device
 
         RenderDevice::Draw(racer.model, racer.transform);
-        //RenderDevice::Draw(groundPlane, groundTransform);
+        RenderDevice::Draw(groundPlane, groundTransform);
         groundTransform = glm::translate(glm::vec3(racer.position.x, -1.0f, racer.position.z));
         groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 

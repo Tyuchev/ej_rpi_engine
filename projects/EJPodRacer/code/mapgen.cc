@@ -7,6 +7,7 @@
 #include "gtc/quaternion.hpp"
 #include "core/random.h"
 #include <iostream>
+#include "debugdraw.h"
 
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
@@ -57,6 +58,20 @@ GameObject Mapgen::GetStraightRoadChunk() {
 }
 
 
+std::vector<glm::vec3> GetBroadGeometry(int nBetweenPoints, float widthNoise, float length) {
+    std::vector<glm::vec3> points = std::vector<glm::vec3>();
+    const float step = length / (nBetweenPoints + 1);
+    points.push_back(glm::vec3(0.0f));
+    for (float dist = step; dist <= length - step + 0.001f; dist += step) {
+        glm::vec3 point;
+        point = glm::vec3(Core::RandomFloatNTP() * widthNoise, 0.0f, dist);
+        points.push_back(point);
+    }
+    points.push_back(glm::vec3(0.0f, 0.0f, length));
+    return points;
+}
+
+
 // Called every frame
 void Mapgen::Generate() {
     // +x is left of spawn origin
@@ -65,10 +80,13 @@ void Mapgen::Generate() {
     static bool genned = false;
     if (!genned) {
         genned = true;
-        glm::vec3 centerOffset(TILE_SIZE * CHUNK_WIDTH / 2, 0.0f, TILE_SIZE * CHUNK_LENGTH / 2);
-        centerOffset -= glm::vec3(TILE_SIZE / 2, 0.0f, TILE_SIZE / 2);
-        glm::vec3 genPos = -centerOffset;
-        chunks[0].SetPos(genPos);
+        //glm::vec3 centerOffset(TILE_SIZE * CHUNK_WIDTH / 2, 0.0f, TILE_SIZE * CHUNK_LENGTH / 2);
+        //centerOffset -= glm::vec3(TILE_SIZE / 2, 0.0f, TILE_SIZE / 2);
+        //glm::vec3 genPos = -centerOffset;
+        //chunks[0].SetPos(genPos);
+        for (glm::vec3 point : GetBroadGeometry(2, 10.0f, 30.0f)) {
+            DebugDraw::ArrowStraight(point, glm::vec3(0.0f, 1.0f, 0.0f));
+        }
     }
 }
 

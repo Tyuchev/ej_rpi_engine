@@ -15,7 +15,9 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     //this->chunks.push_back(GetStraightRoadChunk());
-    this->chunks.push_back(GetFilledRoadChunk());
+    //this->chunks.push_back(GetFilledRoadChunk());
+    this->chunks.push_back(GameObject());
+
 }
 
 
@@ -70,6 +72,17 @@ std::vector<glm::vec3> GetBroadGeometry(int nBetweenPoints, float widthNoise, fl
     points.push_back(glm::vec3(0.0f, 0.0f, length));
     return points;
 }
+
+
+// Returns center of chunk closest to point.
+glm::vec3 GetClosestChunkPos(glm::vec3 point) {
+    glm::vec3 ret = glm::vec3(0.0f);
+    ret.x = (int)(point.x / CHUNK_WIDTH) + CHUNK_WIDTH / 2.0f;
+    ret.y = 0.0f;
+    ret.z = (int)(point.z / CHUNK_LENGTH) + CHUNK_LENGTH / 2.0f;
+    return ret;
+}
+
 
 
 // Called every frame

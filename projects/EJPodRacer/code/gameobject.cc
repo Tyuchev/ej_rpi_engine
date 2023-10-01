@@ -6,6 +6,7 @@ void GameObject::Translate(glm::vec3 dir) {
 	transformMat = transformMat * glm::translate(dir);
 }
 
+// Rotates the object counterclockwise.
 void GameObject::Rotate(glm::vec3 axis, float rad) {
 	transformMat = transformMat * glm::rotate(rad, axis);
 }
@@ -26,12 +27,12 @@ void GameObject::Scale(glm::vec3 amount) {
 	scalingMat = glm::scale(amount);
 }
 
-void GameObject::AttachChild(GameObject& child) {
+void GameObject::AttachChild(GameObject* child) {
     this->children.push_back(child);
-    AttachParent(*this);
+    child->AttachParent(this);
 }
 
-void GameObject::DetachChild(GameObject& child) {
+void GameObject::DetachChild(GameObject* child) {
     for (int i = 0; i < children.size(); i++) {
         if (&children[i] == &child) {
             children.erase(children.begin() + i);
@@ -42,20 +43,20 @@ void GameObject::DetachChild(GameObject& child) {
 
 void GameObject::DetachParent() {
     if (parent != nullptr) {
-        parent->DetachChild(*this);
+        parent->DetachChild(this);
         parent = nullptr;
     }
 }
 
-void GameObject::AttachParent(GameObject& parent) {
+void GameObject::AttachParent(GameObject* parent) {
     this->DetachParent();
-    this->parent = &parent;
+    this->parent = parent;
 }
 
 
 GameObject::GameObject() {
     model = INVALID_MODEL_ID;
-    children = std::vector<GameObject>();
+    children = std::vector<GameObject*>();
     parent = nullptr;
 }
 
@@ -71,7 +72,7 @@ void GameObject::Render(glm::mat4 ctm) const {
         // Children's scaling is independent of parent's for now.
         Render::RenderDevice::Draw(model, ctm * scalingMat);
     }
-    for(GameObject child : children) {
-        child.Render(ctm);
+    for(GameObject* child : children) {
+        child->Render(ctm);
     }
 }

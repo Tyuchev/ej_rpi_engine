@@ -6,11 +6,6 @@
 #include "podracer.h"
 #include "gameobject.h"
 
-constexpr int CHUNK_WIDTH = 9;
-constexpr int CHUNK_LENGTH = 9;
-constexpr float TILE_SIZE = 10.0f; 
-constexpr float TILE_SCALE = 10.0f;
-constexpr int ROAD_WIDTH = 3;
 
 
 

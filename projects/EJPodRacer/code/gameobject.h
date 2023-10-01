@@ -29,7 +29,7 @@ class GameObject {
 
 public:
     Render::ModelId model;
-    std::vector<GameObject> children;
+    std::vector<GameObject*> children;
     GameObject* parent;
 
 	void Translate(glm::vec3 dir);
@@ -37,10 +37,10 @@ public:
 	glm::vec3 GetPos();
     void SetPos(glm::vec3 pos);
 	void Scale(glm::vec3 amount);
-    void AttachChild(GameObject & child);
-    void DetachChild(GameObject & child);
+    void AttachChild(GameObject* child);
+    void DetachChild(GameObject* child);
     void DetachParent();
-    void AttachParent(GameObject & parent);
+    void AttachParent(GameObject* parent);
 
     bool isActive = true;
 

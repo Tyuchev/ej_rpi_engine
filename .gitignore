@@ -34,6 +34,7 @@ x86/
 bld/
 [Bb]in/assets/*
 ![Bb]in/assets/system
+![Bb]in/assets/chunk_data
 ![Bb]in/shd
 #[Oo]bj/
 [Ll]og/

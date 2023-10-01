@@ -8,6 +8,7 @@
 #include "core/random.h"
 #include <iostream>
 #include "debugdraw.h"
+#include "mapchunk.h"
 
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
@@ -15,8 +16,13 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     //this->chunks.push_back(GetStraightRoadChunk());
-    //this->chunks.push_back(GetFilledRoadChunk());
-    this->chunks.push_back(GameObject());
+    //this->chunks.push_back(GameObject());
+
+    printf("Testing flatbuffer:\n\n");
+    MapChunk* chunk = MapChunk::FromData("assets/chunk_data/debug_rot_test.bin");
+    chunk->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -1.5708f);
+    this->chunks.push_back(*chunk);
+    printf("Flatbuffer testing complete\n");
 
 }
 
@@ -27,11 +33,11 @@ GameObject Mapgen::GetFilledRoadChunk() {
 
     for (int z = 0; z < CHUNK_LENGTH; z++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
-            GameObject tile;
+            GameObject* tile = new GameObject();
             glm::vec3 pos = glm::vec3(x*TILE_SIZE, 0.0, z*TILE_SIZE);
-            tile.model = this->sidesModelId;
-            tile.SetPos(pos);
-            tile.Scale(glm::vec3(TILE_SCALE));
+            tile->model = this->sidesModelId;
+            tile->SetPos(pos);
+            tile->Scale(glm::vec3(TILE_SCALE));
             chunk.AttachChild(tile);
         }
     }
@@ -47,13 +53,13 @@ GameObject Mapgen::GetStraightRoadChunk() {
 
     // Generate sides
     for (int z = 0; z < CHUNK_LENGTH; z++) {
-        GameObject left;
+        GameObject* left = new GameObject();
         glm::vec3 pos = glm::vec3(LEFT*TILE_SIZE, 0.0, z*TILE_SIZE);
-        left.model = this->sidesModelId;
-        left.SetPos(pos);
-        left.Scale(glm::vec3(TILE_SCALE));
+        left->model = this->sidesModelId;
+        left->SetPos(pos);
+        left->Scale(glm::vec3(TILE_SCALE));
         // 1.5708 = pi/2 = 90 deg
-        left.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 1.5708f);
+        left->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 1.5708f);
         chunk.AttachChild(left);
     }
     return chunk;
@@ -82,6 +88,9 @@ glm::vec3 GetClosestChunkPos(glm::vec3 point) {
     ret.z = (int)(point.z / CHUNK_LENGTH) + CHUNK_LENGTH / 2.0f;
     return ret;
 }
+
+// TODO: New approach. Just generate a chunk and connect others according to presets per chunk piece.
+//       Generally moving along the forward axis.
 
 
 

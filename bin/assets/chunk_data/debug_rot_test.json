@@ -1,0 +1,37 @@
+{
+    "name": "debug_filled",
+    "exit_direction": "N",
+    "tile_map": [
+        "SSSSSSSSS",
+        "SSSS SSSS",
+        "SS SSS SS",
+        "S SSSSS S",
+        " SSS SSS ",
+        "SSSS SSSS",
+        "SSSS SSSS",
+        "SSSS SSSS",
+        "SSSS SSSS"
+    ],
+    "rotation_map": [
+        "NESWNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN",
+        "NNNNNNNNN"
+    ],
+    "meta_map": [
+        "         ",
+        "         ",
+        "         ",
+        "         ",
+        "         ",
+        "         ",
+        "         ",
+        "         ",
+        "         "
+    ]
+}

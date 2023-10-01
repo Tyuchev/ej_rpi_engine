@@ -18,11 +18,10 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     //this->chunks.push_back(GetStraightRoadChunk());
     //this->chunks.push_back(GameObject());
 
-    printf("Testing flatbuffer:\n\n");
-    MapChunk* chunk = MapChunk::FromData("assets/chunk_data/debug_rot_test.bin");
-    chunk->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -1.5708f);
+    printf("Loading flatbuffers...\n");
+    MapChunk* chunk = MapChunk::FromData("assets/chunk_data/road_straight.bin");
     this->chunks.push_back(*chunk);
-    printf("Flatbuffer testing complete\n");
+    printf("Flatbuffers loaded.\n");
 
 }
 

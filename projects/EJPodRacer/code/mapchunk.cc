@@ -26,12 +26,14 @@ void PrettyPrintData(const GameData::ChunkData * data) {
     }
 }
 
-Render::ModelId GetModel(char tileKey) {
+Render::ModelId GetModel(const char& tileKey) {
     switch (tileKey) {
     case 'R':
         return Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
+    case 'r':
+        return Render::LoadModel("assets/pod_racer/Models/GLTF format/rail_end.glb");
     case '|':
-        return Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
+        return Render::LoadModel("assets/pod_racer/Models/GLTF format/rail_middle.glb");
     case 'S':
         return Render::LoadModel("assets/pod_racer/Models/GLTF format/stairs.glb");
     case ' ':
@@ -42,7 +44,7 @@ Render::ModelId GetModel(char tileKey) {
     }
 }
 
-void ApplyRotationToTile(GameObject* tile, char rotKey) {
+void ApplyRotationToTile(GameObject* tile, const char& rotKey) {
     constexpr glm::vec3 UP(0.0f, 1.0f, 0.0f);
     constexpr float PI = 3.1415927f;
     switch(rotKey) {
@@ -66,15 +68,37 @@ void ApplyRotationToTile(GameObject* tile, char rotKey) {
     }
 }
 
-void ApplyMetaToTile(GameObject* tile, char metaKey) {
-    // For potential future expansion.
+void ApplyMetaToTile(GameObject* tile, const char& metaKey, const int& gridX, const int& gridZ) {
+    // Minus because we want top left of data to correspond to top left of chunk.
+    glm::vec3 position = glm::vec3((CHUNK_WIDTH - gridX) * TILE_SIZE, TILE_HEIGHT, (CHUNK_LENGTH - gridZ) * TILE_SIZE);
+    tile->SetPos(position);
+    tile->Scale(glm::vec3(TILE_SCALE));
+    switch(metaKey) {
+    case ' ':
+        return;
+    case 'N':
+        tile->Translate(glm::vec3(0.0f, 0.0f, 1.0f) * TILE_SIZE);
+        return;
+    case 'E':
+        tile->Translate(glm::vec3(-1.0f, 0.0f, 0.0f) * TILE_SIZE);
+        return;
+    case 'S':
+        tile->Translate(glm::vec3(0.0f, 0.0f, -1.0f) * TILE_SIZE);
+        return;
+    case 'W':
+        tile->Translate(glm::vec3(1.0f, 0.0f, 0.0f) * TILE_SIZE);
+        return;
+    default:
+        printf("Mapchunk: Tile meta key invalid.\n");
+    }
 }
 
-GameObject* GetTile(char tileKey, char rotKey, char metaKey) {
+GameObject* GetTile(const char& tileKey, const char& rotKey, const char& metaKey, const int& gridX, const int& gridZ) {
     GameObject* tile = new GameObject();
+    // TODO: Might not want to load a game object if key is " ".
     tile->model = GetModel(tileKey);
+    ApplyMetaToTile(tile, metaKey, gridX, gridZ);
     ApplyRotationToTile(tile, rotKey);
-    ApplyMetaToTile(tile, metaKey);
     return tile;
 }
 
@@ -152,11 +176,9 @@ bool ParseData(const GameData::ChunkData* data, MapChunk* outChunk) {
             GameObject* tile = GetTile(
                 tileMap->Get(z)->str().at(x),
                 rotMap->Get(z)->str().at(x),
-                metaMap->Get(z)->str().at(x));
-            // Minus because we want top left of data to correspond to top left of chunk.
-            glm::vec3 position = glm::vec3((CHUNK_WIDTH - x) * TILE_SIZE, TILE_HEIGHT, (CHUNK_LENGTH - z) * TILE_SIZE);
-            tile->SetPos(position);
-            tile->Scale(glm::vec3(TILE_SCALE));
+                metaMap->Get(z)->str().at(x),
+                x,
+                z);
             outChunk->AttachChild(tile);
         }
     }

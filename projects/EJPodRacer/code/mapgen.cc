@@ -9,7 +9,6 @@
 #include <iostream>
 #include "debugdraw.h"
 #include "mapchunk.h"
-#include "mapparser.h"
 
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
@@ -17,13 +16,12 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     //this->chunks.push_back(GetStraightRoadChunk());
-    //this->chunks.push_back(GameObject());
-
-    printf("Loading flatbuffers...\n");
-    MapChunk* chunk = MapParser::FromData("assets/chunk_data/road_straight.bin");
-    this->chunks.push_back(*chunk);
-    printf("Flatbuffers loaded.\n");
-
+    GameObject chunk = GameObject();
+    chunk.model = Render::LoadModel("assets/chunk_models/road_straight.glb");
+    //chunk.model = Render::LoadModel("assets/pod_racer/Models/GLTF format/machine_generatorLarge.glb");
+    chunk.Scale(glm::vec3(TILE_SCALE));
+    this->chunks.push_back(chunk);
+    
 }
 
 

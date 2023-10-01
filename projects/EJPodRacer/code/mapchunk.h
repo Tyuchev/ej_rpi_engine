@@ -24,7 +24,6 @@ public:
     MapChunk();
     void Attach(MapChunk& chunk);
     MapChunk* Duplicate();
-    static MapChunk* FromData(const char* binFilePath);
 
 private:
     // Assumed to start forward at start, but can change.

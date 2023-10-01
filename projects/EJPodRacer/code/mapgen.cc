@@ -9,6 +9,7 @@
 #include <iostream>
 #include "debugdraw.h"
 #include "mapchunk.h"
+#include "mapparser.h"
 
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
@@ -19,7 +20,7 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     //this->chunks.push_back(GameObject());
 
     printf("Loading flatbuffers...\n");
-    MapChunk* chunk = MapChunk::FromData("assets/chunk_data/road_straight.bin");
+    MapChunk* chunk = MapParser::FromData("assets/chunk_data/road_straight.bin");
     this->chunks.push_back(*chunk);
     printf("Flatbuffers loaded.\n");
 

@@ -11,7 +11,7 @@ This is my process for creating chunks in Blender, written down here so I don't 
     * Use axis snap.
 6. Use math to figure out how much to move everything in each axis so it's centered, and do so.
 7. Measure again to check it's centered.
-8. Join all models into one object.
+8. Join all models into one object. Make sure the selected and resulting object's rotation is 0.
 9. Cursor to world origin, then both origin and pivot to cursor.
 10. In *edit mode*, rotate chunk so the input direction faces +z. 
 11. Remove chunk from any collections and rename it appropriately.

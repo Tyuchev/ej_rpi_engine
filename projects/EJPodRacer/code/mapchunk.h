@@ -25,10 +25,22 @@ public:
     
     MapChunk();
     MapChunk(const Render::ModelId& chunkModel);
-    void Attach(MapChunk& chunk);
+    void Attach(MapChunk* chunk);
     MapChunk* Duplicate();
 
 private:
 
     Direction RotateDirCW(Direction dir, const int& times);
+};
+
+class MapChunkBuilder {
+public:
+    MapChunkBuilder();
+
+    void AddNext(const char* model, const Direction& exitDir);
+    std::vector<MapChunk*> GetChunks();
+
+private:
+    std::vector<MapChunk*> chunks;
+    MapChunk* lastAdded;
 };

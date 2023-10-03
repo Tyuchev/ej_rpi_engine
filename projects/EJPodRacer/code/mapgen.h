@@ -4,7 +4,7 @@
 #include "render/lightserver.h"
 #include <vector>
 #include "podracer.h"
-#include "gameobject.h"
+#include "mapchunk.h"
 
 
 
@@ -19,7 +19,7 @@ private:
     GameObject GetStraightRoadChunk();
     GameObject GetFilledRoadChunk();
 
-    std::vector<GameObject> chunks;
+    std::vector<MapChunk*> chunks;
     std::vector<Render::PointLightId> lights;
     Game::PodRacer* const player;
     Render::ModelId sidesModelId;

@@ -33,7 +33,7 @@ public:
     GameObject* parent;
 
 	void Translate(glm::vec3 dir);
-	void Rotate(glm::vec3 axis, float rad);
+    void Rotate(glm::vec3 axis, float rad);
 	glm::vec3 GetPos();
     void SetPos(glm::vec3 pos);
 	void Scale(glm::vec3 amount);

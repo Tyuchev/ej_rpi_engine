@@ -16,11 +16,25 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     //this->chunks.push_back(GetStraightRoadChunk());
-    GameObject chunk = GameObject();
-    chunk.model = Render::LoadModel("assets/chunk_models/road_straight.glb");
-    //chunk.model = Render::LoadModel("assets/pod_racer/Models/GLTF format/machine_generatorLarge.glb");
-    chunk.Scale(glm::vec3(TILE_SCALE));
-    this->chunks.push_back(chunk);
+    MapChunk chunk1 = MapChunk(Render::LoadModel("assets/chunk_models/road_straight.glb"));
+    MapChunk chunk2 = MapChunk(Render::LoadModel("assets/chunk_models/road_right.glb"));
+    MapChunk chunk3 = MapChunk(Render::LoadModel("assets/chunk_models/road_right.glb"));
+    MapChunk chunk4 = MapChunk(Render::LoadModel("assets/chunk_models/road_straight.glb"));
+    chunk1.exitDir = Direction::North;
+    chunk2.exitDir = Direction::East;
+    chunk3.exitDir = Direction::East;
+    chunk4.exitDir = Direction::North;
+    chunk1.Attach(chunk2);
+    chunk2.Attach(chunk3);
+    chunk3.Attach(chunk4);
+    chunk1.Scale(glm::vec3(TILE_SCALE));
+    chunk2.Scale(glm::vec3(TILE_SCALE));
+    chunk3.Scale(glm::vec3(TILE_SCALE));
+    chunk4.Scale(glm::vec3(TILE_SCALE));
+    this->chunks.push_back(chunk1);
+    this->chunks.push_back(chunk2);
+    this->chunks.push_back(chunk3);
+    this->chunks.push_back(chunk4);
     
 }
 

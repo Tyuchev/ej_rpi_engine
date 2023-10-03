@@ -53,7 +53,7 @@ Direction MapChunk::RotateDirCW(Direction dir, const int& times) {
             }
         }
     }
-    return dir;
+    return returnDir;
 }
 
 
@@ -61,7 +61,7 @@ void MapChunk::Attach(MapChunk& chunk) {
     glm::vec3 offset;
     constexpr glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
     constexpr float PI = 3.1415927f;
-    switch(forwardDir) {
+    switch(exitDir) {
     case Direction::North:
         offset = glm::vec3(0.0f, 0.0f, CHUNK_LENGTH * TILE_SCALE);
         break;

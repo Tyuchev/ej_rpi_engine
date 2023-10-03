@@ -20,6 +20,8 @@ enum class Direction {
 class MapChunk : public GameObject {
 public:
     Direction exitDir;
+    // Assumed to start forward at start, but can change.
+    Direction forwardDir = Direction::North;
     
     MapChunk();
     MapChunk(const Render::ModelId& chunkModel);
@@ -27,8 +29,6 @@ public:
     MapChunk* Duplicate();
 
 private:
-    // Assumed to start forward at start, but can change.
-    Direction forwardDir = Direction::North;
 
     Direction RotateDirCW(Direction dir, const int& times);
 };

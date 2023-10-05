@@ -71,23 +71,40 @@ void MapChunk::Attach(MapChunk* chunk) {
     case Direction::East:
         offset = glm::vec3(-CHUNK_WIDTH * TILE_SCALE, 0.0f, 0.0f);
         chunk->Rotate(UP, -PI / 2.0f);
-        chunk->forwardDir = RotateDirCW(chunk->forwardDir, 1);
-        chunk->exitDir = RotateDirCW(exitDir, 1);
+        chunk->forwardDir = exitDir;
+        chunk->exitDir = RotateDirCW(chunk->exitDir, 1);
         break;
     case Direction::South:
         offset = glm::vec3(0.0f, 0.0f, -CHUNK_LENGTH * TILE_SCALE);
         chunk->Rotate(UP, PI);
-        chunk->forwardDir = RotateDirCW(chunk->forwardDir, 2);
-        chunk->exitDir = RotateDirCW(exitDir, 2);
+        chunk->forwardDir = exitDir;
+        chunk->exitDir = RotateDirCW(chunk->exitDir, 2);
         break;
     case Direction::West:
         offset = glm::vec3(CHUNK_WIDTH * TILE_SCALE, 0.0f, 0.0f);
         chunk->Rotate(UP, -PI / 2.0f);
-        chunk->forwardDir = RotateDirCW(chunk->forwardDir, -1);
-        chunk->exitDir = RotateDirCW(exitDir, -1);
+        chunk->forwardDir = exitDir;
+        chunk->exitDir = RotateDirCW(chunk->exitDir, -1);
         break;
     }
     chunk->SetPos(this->GetPos() + offset);
+}
+
+void PrintDir(const Direction& dir) {
+    switch(dir) {
+    case Direction::North:
+        printf("North\n");
+        return;
+    case Direction::East:
+        printf("East\n");
+        return;
+    case Direction::South:
+        printf("South\n");
+        return;
+    case Direction::West:
+        printf("West\n");
+        return;
+    }
 }
 
 void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
@@ -98,6 +115,7 @@ void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
         lastAdded->Attach(chunk);
     }
     lastAdded = chunk;
+    PrintDir(lastAdded->exitDir);
     chunks.push_back(chunk);
 }
 

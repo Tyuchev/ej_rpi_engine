@@ -23,7 +23,7 @@ public:
     // Assumed to start forward at start, but can change.
     Direction forwardDir = Direction::North;
     
-    MapChunk();
+    MapChunk() = default;
     MapChunk(const Render::ModelId& chunkModel);
     void Attach(MapChunk* chunk);
     MapChunk* Duplicate();

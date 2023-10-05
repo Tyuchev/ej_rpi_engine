@@ -3,9 +3,6 @@
 #include <string>
 
 
-MapChunk::MapChunk() {
-    GameObject::GameObject();
-}
 
 MapChunk::MapChunk(const Render::ModelId& chunkModel) {
     model = chunkModel;

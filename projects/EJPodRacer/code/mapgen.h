@@ -16,8 +16,6 @@ public:
     void Draw();
 
 private:
-    GameObject GetStraightRoadChunk();
-    GameObject GetFilledRoadChunk();
 
     std::vector<MapChunk*> chunks;
     std::vector<Render::PointLightId> lights;

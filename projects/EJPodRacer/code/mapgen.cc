@@ -23,49 +23,11 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
     builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
 
+    // TODO: If track is supposed to be infinite, then this needs to change.
     chunks = builder.GetChunks();
 }
 
-
-GameObject Mapgen::GetFilledRoadChunk() {
-    GameObject chunk;
-    chunk.model = Render::LoadModel("assets/pod_racer/Models/GLTF format/machine_generatorLarge.glb");
-
-    for (int z = 0; z < CHUNK_LENGTH; z++) {
-        for (int x = 0; x < CHUNK_WIDTH; x++) {
-            GameObject* tile = new GameObject();
-            glm::vec3 pos = glm::vec3(x*TILE_SIZE, 0.0, z*TILE_SIZE);
-            tile->model = this->sidesModelId;
-            tile->SetPos(pos);
-            tile->Scale(glm::vec3(TILE_SCALE));
-            chunk.AttachChild(tile);
-        }
-    }
-    return chunk;
-}
-
-GameObject Mapgen::GetStraightRoadChunk() {
-    GameObject chunk;
-
-    // 0 is leftmost tile
-    const int RIGHT = 2;
-    const int LEFT = 6;
-
-    // Generate sides
-    for (int z = 0; z < CHUNK_LENGTH; z++) {
-        GameObject* left = new GameObject();
-        glm::vec3 pos = glm::vec3(LEFT*TILE_SIZE, 0.0, z*TILE_SIZE);
-        left->model = this->sidesModelId;
-        left->SetPos(pos);
-        left->Scale(glm::vec3(TILE_SCALE));
-        // 1.5708 = pi/2 = 90 deg
-        left->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 1.5708f);
-        chunk.AttachChild(left);
-    }
-    return chunk;
-}
-
-
+// TODO: If unused delete.
 std::vector<glm::vec3> GetBroadGeometry(int nBetweenPoints, float widthNoise, float length) {
     std::vector<glm::vec3> points = std::vector<glm::vec3>();
     const float step = length / (nBetweenPoints + 1);
@@ -80,6 +42,7 @@ std::vector<glm::vec3> GetBroadGeometry(int nBetweenPoints, float widthNoise, fl
 }
 
 
+// TODO: If unused delete.
 // Returns center of chunk closest to point.
 glm::vec3 GetClosestChunkPos(glm::vec3 point) {
     glm::vec3 ret = glm::vec3(0.0f);

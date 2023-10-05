@@ -90,23 +90,6 @@ void MapChunk::Attach(MapChunk* chunk) {
     chunk->SetPos(this->GetPos() + offset);
 }
 
-void PrintDir(const Direction& dir) {
-    switch(dir) {
-    case Direction::North:
-        printf("North\n");
-        return;
-    case Direction::East:
-        printf("East\n");
-        return;
-    case Direction::South:
-        printf("South\n");
-        return;
-    case Direction::West:
-        printf("West\n");
-        return;
-    }
-}
-
 void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
     MapChunk* chunk = new MapChunk(Render::LoadModel(model));
     chunk->exitDir = exitDir;
@@ -115,7 +98,6 @@ void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
         lastAdded->Attach(chunk);
     }
     lastAdded = chunk;
-    PrintDir(lastAdded->exitDir);
     chunks.push_back(chunk);
 }
 

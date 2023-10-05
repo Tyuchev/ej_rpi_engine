@@ -20,7 +20,7 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
     builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
     builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-    //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
+    builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
     builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
 
     chunks = builder.GetChunks();

@@ -97,6 +97,7 @@ void MapChunk::Attach(MapChunk* chunk) {
 
 void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
     MapChunk* chunk = new MapChunk(Render::LoadModel(model));
+    chunk->isRoad = true;
     chunk->exitDir = exitDir;
     chunk->Scale(glm::vec3(TILE_SCALE));
     if (lastChunk != nullptr) {

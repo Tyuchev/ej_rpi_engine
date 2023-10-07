@@ -94,6 +94,7 @@ void ApplyMetaToTile(GameObject* tile, const char& metaKey, const int& gridX, co
 
 GameObject* GetTile(const char& tileKey, const char& rotKey, const char& metaKey, const int& gridX, const int& gridZ) {
     GameObject* tile = new GameObject();
+    tile->isRoad = true;
     // TODO: Might not want to load a game object if key is " ".
     tile->model = GetModel(tileKey);
     ApplyMetaToTile(tile, metaKey, gridX, gridZ);
@@ -181,6 +182,7 @@ bool ParseData(const GameData::ChunkData* data, MapChunk* outChunk) {
             outChunk->AttachChild(tile);
         }
     }
+    outChunk->isRoad = true;
     return true;
 }
 

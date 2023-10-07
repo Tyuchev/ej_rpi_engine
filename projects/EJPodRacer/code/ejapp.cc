@@ -102,6 +102,7 @@ EJApp::Run()
     };
     TextureResourceId skyboxId = TextureResource::LoadCubemap("skybox", skybox, true);
     RenderDevice::SetSkybox(skyboxId);
+    RenderDevice::SetRoadScale(TILE_SCALE);
     
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
@@ -125,6 +126,8 @@ EJApp::Run()
 
     PodRacer racer;
     racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
+    // FIXME: For debug, remove.
+    racer.position = glm::vec3(1.23f, 2.23f, 3.23f);
 
     ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
     glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
@@ -172,6 +175,7 @@ EJApp::Run()
     // game loop
     while (this->window->IsOpen())
 	{
+        Render::RenderDevice::SetPlayerPos(racer.position);
         auto timeStart = std::chrono::steady_clock::now();
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -180,7 +184,7 @@ EJApp::Run()
         
         this->window->Update();
 
-        if (kbd->pressed[Input::Key::Code::End])
+        if (kbd->pressed[Input::Key::Code::R])
         {
             ShaderResource::ReloadShaders();
         }
@@ -191,7 +195,7 @@ EJApp::Run()
         // Store all drawcalls in the render device
 
         RenderDevice::Draw(racer.model, racer.transform);
-        RenderDevice::Draw(groundPlane, groundTransform);
+        //RenderDevice::Draw(groundPlane, groundTransform);
         groundTransform = glm::translate(glm::vec3(racer.position.x, TILE_HEIGHT, racer.position.z));
         groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 

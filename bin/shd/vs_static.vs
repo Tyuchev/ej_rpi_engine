@@ -16,12 +16,29 @@ layout(location=3) out vec2 out_TexCoords;
 
 uniform mat4 ViewProjection;
 uniform mat4 Model;
+uniform bool IsRoad;
+uniform vec3 PlayerPosition;
+uniform vec3 ObjectPosition;
+uniform float RoadScale;
 
 invariant gl_Position;
 
 void main()
 {
-	vec4 wPos = (Model * vec4(in_Position, 1.0f));
+	vec4 wPos;
+	if (!IsRoad)
+	{
+		wPos = (Model * vec4(in_Position, 1.0f));
+	}
+	else
+	{
+		const float curveDistance = 10.0f;
+		const float curveStrength = 1.5f;
+		float dist = ObjectPosition.z / RoadScale + in_Position.z - PlayerPosition.z / RoadScale;
+		dist = clamp(dist, 0.0f, curveDistance - 0.5f);
+		float newHeight = curveStrength * (log(curveDistance - dist) - log(curveDistance));
+		wPos = (Model * vec4(in_Position + vec3(0.0f, newHeight, 0.0f), 1.0f));
+	}
 	out_WorldSpacePos = wPos.xyz;
 	out_TexCoords = in_TexCoord_0;
 	out_Tangent = vec4(normalize((Model * vec4(in_Tangent.xyz, 0)).xyz), in_Tangent.w);

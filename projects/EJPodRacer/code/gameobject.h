@@ -31,6 +31,8 @@ public:
     Render::ModelId model;
     std::vector<GameObject*> children;
     GameObject* parent;
+    // Set to true if you want to use road shader.
+    bool isRoad = false;
 
 	void Translate(glm::vec3 dir);
     void Rotate(glm::vec3 axis, float rad);

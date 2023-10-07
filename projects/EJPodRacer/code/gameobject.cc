@@ -70,7 +70,7 @@ void GameObject::Render(glm::mat4 ctm) const {
     ctm = ctm * transformMat;
     if (model < INVALID_MODEL_ID) {
         // Children's scaling is independent of parent's for now.
-        Render::RenderDevice::Draw(model, ctm * scalingMat);
+        Render::RenderDevice::Draw(model, ctm * scalingMat, GetPos(), isRoad);
     }
     for(GameObject* child : children) {
         child->Render(ctm);

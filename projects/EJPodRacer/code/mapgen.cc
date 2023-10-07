@@ -8,24 +8,38 @@
 #include "core/random.h"
 #include <iostream>
 
+#include "mapparser.h"
+
 // Should be used for fog shader later as well;
 constexpr float RENDER_DISTANCE = 100000.0f;
 constexpr float CHUNK_REMOVAL_DISTANCE = 200.0f;
 constexpr float CHUNK_ADD_DISTANCE = 100.0f;
 constexpr bool MANUAL_CHUNK_DEBUG = false;
+constexpr bool ONLY_STRAIGHT_CHUNKS = true;
 
 MapChunkBuilder builder = MapChunkBuilder();
+
+MapChunk* debugChunk = nullptr;
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     if (MANUAL_CHUNK_DEBUG) {
+        //debugChunk = MapParser::FromData("assets/chunk_data/road_straight.bin");
+        //debugChunk = MapParser::FromData("assets/chunk_data/debug_rot_test.bin");
+        //debugChunk->Translate(glm::vec3(-CHUNK_WIDTH/2 * TILE_SIZE, 0.0, -CHUNK_LENGTH/2 * TILE_SIZE));
+        //builder.AddNext("assets/chunk_models/road_massive_straight.glb", Direction::North);
         builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
-        builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
-        builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
         builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
+        //builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
+        //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
+        //builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
     }
     else {
         builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
@@ -36,7 +50,7 @@ void PlaceNextChunk() {
     float directionChance = Core::RandomFloat();
     constexpr float STRAIGHT_CHANCE = 0.5f;
     // Turn
-    if (directionChance > STRAIGHT_CHANCE) {
+    if (!ONLY_STRAIGHT_CHUNKS && directionChance > STRAIGHT_CHANCE) {
         const float checkValue = (STRAIGHT_CHANCE + 1) / 2;
         // Left
         if (directionChance < checkValue) {
@@ -81,6 +95,9 @@ void Mapgen::Draw() {
         if (MANUAL_CHUNK_DEBUG || glm::distance(chunk->GetPos(), player->position) < RENDER_DISTANCE) {
             chunk->Draw();
         }
+    }
+    if (debugChunk != nullptr) {
+        debugChunk->Draw();
     }
 }
 

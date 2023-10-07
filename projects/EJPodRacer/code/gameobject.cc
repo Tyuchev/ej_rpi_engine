@@ -11,7 +11,7 @@ void GameObject::Rotate(glm::vec3 axis, float rad) {
 	transformMat = transformMat * glm::rotate(rad, axis);
 }
 
-glm::vec3 GameObject::GetPos() {
+glm::vec3 GameObject::GetPos() const {
 	// first three elements of last column
 	return glm::vec3(transformMat[3][0], transformMat[3][1], transformMat[3][2]);
 }

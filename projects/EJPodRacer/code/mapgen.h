@@ -17,7 +17,6 @@ public:
 
 private:
 
-    std::vector<MapChunk*> chunks;
     std::vector<Render::PointLightId> lights;
     Game::PodRacer* const player;
     Render::ModelId sidesModelId;

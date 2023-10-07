@@ -8,9 +8,6 @@ MapChunk::MapChunk(const Render::ModelId& chunkModel) {
     model = chunkModel;
 }
 
-MapChunk* MapChunk::Duplicate() {
-    return nullptr;
-}
 
 Direction MapChunk::RotateDirCW(Direction dir, const int& times) {
     Direction returnDir = dir;
@@ -55,8 +52,16 @@ Direction MapChunk::RotateDirCW(Direction dir, const int& times) {
 
 
 MapChunkBuilder::MapChunkBuilder() {
-    lastAdded = nullptr;
+    lastChunk = nullptr;
+    firstChunk = nullptr;
     chunks = std::vector<MapChunk*>();
+}
+
+MapChunkBuilder::~MapChunkBuilder() {
+    for (MapChunk* chunk : chunks) {
+        delete chunk;
+    }
+    chunks.clear();
 }
 
 
@@ -94,14 +99,30 @@ void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
     MapChunk* chunk = new MapChunk(Render::LoadModel(model));
     chunk->exitDir = exitDir;
     chunk->Scale(glm::vec3(TILE_SCALE));
-    if (lastAdded != nullptr) {
-        lastAdded->Attach(chunk);
+    if (lastChunk != nullptr) {
+        lastChunk->Attach(chunk);
     }
-    lastAdded = chunk;
+    lastChunk = chunk;
+    if (firstChunk == nullptr) {
+        firstChunk = chunk;
+    }
     chunks.push_back(chunk);
 }
 
-std::vector<MapChunk*> MapChunkBuilder::GetChunks() {
+const std::vector<MapChunk*>& MapChunkBuilder::GetChunks() const {
     return chunks;
 }
 
+const MapChunk* MapChunkBuilder::GetLastChunk() const {
+    return lastChunk;
+}
+
+const MapChunk* MapChunkBuilder::GetFirstChunk() const {
+    return firstChunk;
+}
+
+void MapChunkBuilder::RemoveFirst() {
+    chunks.erase(chunks.begin());
+    // TODO: See if you need to delete firstChunk here.
+    firstChunk = chunks[0];
+}

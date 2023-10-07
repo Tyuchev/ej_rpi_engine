@@ -2,14 +2,19 @@
 
 class HighscoreSystem {
 public:
-    HighscoreSystem(char* filePath);
-    int score;
+    HighscoreSystem(const char* filePath);
+    int currentScore;
+    int previousHigh;
 
-    // Return the value read from filePath. Called in constructor to set score.
-    int Read();
-    // Write value of score to filePath
+    // Write value of current score to filePath.
     void Write();
+    bool IsHigh();
+    // Write value of current score to filePath if it's high enough. Returns true if it was.
+    bool Save();
 
 private:
-    char* filePath;
+    // Return the value read from filePath. Private because called in constructor to set score.
+    int Read();
+
+    const char* filePath;
 };

@@ -20,12 +20,16 @@
 #include "render/physics.h"
 #include <chrono>
 #include "podracer.h"
+#include "highscore.h"
 
 using namespace Display;
 using namespace Render;
 
 namespace Game
 {
+
+const char* SCORE_FILE_PATH = "score.txt";
+HighscoreSystem scoreSystem(SCORE_FILE_PATH);
 
 //------------------------------------------------------------------------------
 /**
@@ -198,6 +202,7 @@ EJApp::Run()
     // Start Timers
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
+    
 
     // Game loop
     while (this->window->IsOpen())
@@ -220,6 +225,17 @@ EJApp::Run()
         // Update checks for user input & controls/updates the model
         racer.Update(dt);
         racer.CheckCollisions();
+
+        
+        // Placeholder for actual score calcs. If keep at least make it non-static.
+        {
+            static float scoreTime = 0.0f;
+            scoreTime += dt;
+            if (scoreTime > 10.0) {
+                scoreTime = 0.0;
+                scoreSystem.currentScore++;
+            }
+        }
 
         // Store all drawcalls in the render device
         // Obsticles
@@ -253,6 +269,7 @@ EJApp::Run()
 void
 EJApp::Exit()
 {
+    scoreSystem.Save();
     this->window->Close();
 }
 
@@ -295,7 +312,12 @@ EJApp::RenderNanoVG(NVGcontext* vg)
     nvgFontSize(vg, 16.0f);
     nvgFontFace(vg, "sans");
     nvgFillColor(vg, nvgRGBA(255, 255, 255, 128));
-    nvgText(vg, 0, 30, "James' changes - Testing, testing... Everything seems to be in order.", NULL);
+    std::string score = "Current score: ";
+    score += std::to_string(scoreSystem.currentScore);
+    nvgText(vg, 0, 30, score.c_str(), NULL);
+    std::string highScore = "Highscore: ";
+    highScore += std::to_string(scoreSystem.previousHigh);
+    nvgText(vg, 0, 60, highScore.c_str(), NULL);
 
     nvgRestore(vg);
 }

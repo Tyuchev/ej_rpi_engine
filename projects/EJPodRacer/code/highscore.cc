@@ -5,8 +5,9 @@
 #include <string>
 //#include <ios>
 
-HighscoreSystem::HighscoreSystem(char* filePath) : filePath(filePath) {
-    score = Read();
+HighscoreSystem::HighscoreSystem(const char* filePath) : filePath(filePath) {
+    previousHigh = Read();
+    currentScore = 0;
 }
 
 int HighscoreSystem::Read() {
@@ -19,9 +20,21 @@ int HighscoreSystem::Read() {
     return std::stoi(line);
 }
 
+bool HighscoreSystem::IsHigh() {
+    return (currentScore > previousHigh);
+}
+
+bool HighscoreSystem::Save() {
+    if (IsHigh()) {
+        Write();
+        return true;
+    }
+    return false;
+}
+
 void HighscoreSystem::Write() {
     std::ofstream fs;
     fs.open(filePath, std::ios::out | std::ios::trunc);
-    fs << std::to_string(score);
+    fs << std::to_string(currentScore);
     fs.close();
 }

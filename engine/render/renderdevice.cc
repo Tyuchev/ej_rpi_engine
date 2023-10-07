@@ -50,6 +50,11 @@ void RenderDevice::SetRoadScale(const float& scale)
     Instance()->roadScale = scale;
 }
 
+void RenderDevice::SetRoadTurnFactor(const float& factor)
+{
+    Instance()->roadTurnFactor = factor;
+}
+
 void SetupFullscreenQuad()
 {
     const float verts[] = {
@@ -195,6 +200,7 @@ RenderDevice::StaticShadowPass()
     glUseProgram(programHandle);
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "ViewProjection"), 1, false, &shadowCamera->viewProjection[0][0]);
     glUniform1f(glGetUniformLocation(programHandle, "RoadScale"), roadScale);
+    glUniform1f(glGetUniformLocation(programHandle, "RoadTurnFactor"), roadTurnFactor);
 
     GLuint baseColorFactorLocation = glGetUniformLocation(programHandle, "BaseColorFactor");
     GLuint modelLocation = glGetUniformLocation(programHandle, "Model");
@@ -255,6 +261,7 @@ RenderDevice::StaticGeometryPrepass()
     glUniformMatrix4fv(glGetUniformLocation(staticOpaquePrepassProgramHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
     glUniform3fv(glGetUniformLocation(staticOpaquePrepassProgramHandle, "PlayerPosition"), 1, &playerPos[0]);
     glUniform1f(glGetUniformLocation(staticOpaquePrepassProgramHandle, "RoadScale"), roadScale);
+    glUniform1f(glGetUniformLocation(staticOpaquePrepassProgramHandle, "RoadTurnFactor"), roadTurnFactor);
     
     GLuint baseColorFactorLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "BaseColorFactor");
     GLuint modelLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "Model");
@@ -366,6 +373,7 @@ RenderDevice::StaticForwardPass()
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "GlobalShadowMatrix"), 1, false, &globalShadowCamera->viewProjection[0][0]);
     glUniform3fv(glGetUniformLocation(programHandle, "PlayerPosition"), 1, &playerPos[0]);
     glUniform1f(glGetUniformLocation(programHandle, "RoadScale"), roadScale);
+    glUniform1f(glGetUniformLocation(programHandle, "RoadTurnFactor"), roadTurnFactor);
 
     GLuint baseColorFactorLocation = glGetUniformLocation(programHandle, "BaseColorFactor");
     GLuint emissiveFactorLocation = glGetUniformLocation(programHandle, "EmissiveFactor");

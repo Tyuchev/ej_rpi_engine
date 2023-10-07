@@ -20,6 +20,7 @@ uniform bool IsRoad;
 uniform vec3 PlayerPosition;
 uniform vec3 ObjectPosition;
 uniform float RoadScale;
+uniform float RoadTurnFactor;
 
 invariant gl_Position;
 
@@ -32,12 +33,13 @@ void main()
 	}
 	else
 	{
-		const float curveDistance = 10.0f;
+		const float curveDistance = 30.0f;
 		const float curveStrength = 1.5f;
 		float dist = ObjectPosition.z / RoadScale + in_Position.z - PlayerPosition.z / RoadScale;
 		dist = clamp(dist, 0.0f, curveDistance - 0.5f);
-		float newHeight = curveStrength * (log(curveDistance - dist) - log(curveDistance));
-		wPos = (Model * vec4(in_Position + vec3(0.0f, newHeight, 0.0f), 1.0f));
+		float newY = curveStrength * (log(curveDistance - dist) - log(curveDistance));
+		float newX = newY * RoadTurnFactor;
+		wPos = (Model * vec4(in_Position + vec3(newX * 5.0f, newY, 0.0f), 1.0f));
 	}
 	out_WorldSpacePos = wPos.xyz;
 	out_TexCoords = in_TexCoord_0;

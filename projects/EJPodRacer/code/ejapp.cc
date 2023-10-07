@@ -189,6 +189,16 @@ EJApp::Run()
             ShaderResource::ReloadShaders();
         }
 
+        // Road turn test.
+        {
+            static float t = 0.0f;
+            t += dt;
+            if (t >= 2 * 3.14159) {
+                t = 0.0f;
+            }
+            Render::RenderDevice::SetRoadTurnFactor(sin(t));
+        }
+
         racer.Update(dt);
         racer.CheckCollisions();
 

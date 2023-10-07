@@ -46,11 +46,13 @@ public:
     static void SetSkybox(TextureResourceId tex);
     static void SetPlayerPos(const glm::vec3& pos);
     static void SetRoadScale(const float& scale);
+    static void SetRoadTurnFactor(const float& factor);
 
 private:
     GLuint forwardFrameBuffer;
     glm::vec3 playerPos;
     float roadScale = 1.0f;
+    float roadTurnFactor = 0.0f;
     union RenderTargets
     {
         GLuint RT[2];

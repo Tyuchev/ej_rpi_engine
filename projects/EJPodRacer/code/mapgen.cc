@@ -19,24 +19,11 @@ constexpr bool ONLY_STRAIGHT_CHUNKS = true;
 
 MapChunkBuilder builder = MapChunkBuilder();
 
-MapChunk* debugChunk = nullptr;
-
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     if (MANUAL_CHUNK_DEBUG) {
-        //debugChunk = MapParser::FromData("assets/chunk_data/road_straight.bin");
-        //debugChunk = MapParser::FromData("assets/chunk_data/debug_rot_test.bin");
-        //debugChunk->Translate(glm::vec3(-CHUNK_WIDTH/2 * TILE_SIZE, 0.0, -CHUNK_LENGTH/2 * TILE_SIZE));
-        //builder.AddNext("assets/chunk_models/road_massive_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
-        //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
         //builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
         //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
         //builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
@@ -95,9 +82,6 @@ void Mapgen::Draw() {
         if (MANUAL_CHUNK_DEBUG || glm::distance(chunk->GetPos(), player->position) < RENDER_DISTANCE) {
             chunk->Draw();
         }
-    }
-    if (debugChunk != nullptr) {
-        debugChunk->Draw();
     }
 }
 

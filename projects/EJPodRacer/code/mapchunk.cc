@@ -87,7 +87,7 @@ void MapChunk::Attach(MapChunk* chunk) {
         break;
     case Direction::West:
         offset = glm::vec3(CHUNK_WIDTH * TILE_SCALE, 0.0f, 0.0f);
-        chunk->Rotate(UP, -PI / 2.0f);
+        chunk->Rotate(UP, PI / 2.0f);
         chunk->forwardDir = exitDir;
         chunk->exitDir = RotateDirCW(chunk->exitDir, -1);
         break;

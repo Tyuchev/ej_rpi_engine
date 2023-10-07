@@ -7,7 +7,6 @@
 #include "gtc/quaternion.hpp"
 #include "core/random.h"
 #include <iostream>
-#include "debugdraw.h"
 
 // Should be used for fog shader later as well;
 constexpr float RENDER_DISTANCE = 100.0f;
@@ -42,7 +41,6 @@ void Mapgen::Generate() {
     // Check if we should delete past chunks.
     if (glm::distance(builder.GetFirstChunk()->GetPos(), player->position) >= CHUNK_REMOVAL_DISTANCE) {
         builder.RemoveFirst();
-        printf("Deleted old chunk\n");
     }
 }
 

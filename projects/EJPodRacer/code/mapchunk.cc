@@ -123,6 +123,6 @@ const MapChunk* MapChunkBuilder::GetFirstChunk() const {
 
 void MapChunkBuilder::RemoveFirst() {
     chunks.erase(chunks.begin());
-    // TODO: See if you need to delete firstChunk here.
+    delete firstChunk;
     firstChunk = chunks[0];
 }

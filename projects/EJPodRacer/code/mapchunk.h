@@ -8,6 +8,8 @@ constexpr int CHUNK_LENGTH = 9;
 constexpr float TILE_SIZE = 10.0f; 
 constexpr float TILE_SCALE = 10.0f;
 constexpr float TILE_HEIGHT = 0.0f;
+constexpr float ROAD_WIDTH = 4.0f;
+constexpr float OBSTACLE_SPAWN_CHANCE = 0.1f;
 
 enum class Direction {
     North,

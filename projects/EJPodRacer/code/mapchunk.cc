@@ -1,7 +1,7 @@
 #include "config.h"
 #include "mapchunk.h"
 #include <string>
-
+#include "core/random.h"
 
 
 MapChunk::MapChunk(const Render::ModelId& chunkModel) {
@@ -95,6 +95,36 @@ void MapChunk::Attach(MapChunk* chunk) {
     chunk->SetPos(this->GetPos() + offset);
 }
 
+GameObject* GetObstacleTile() {
+    GameObject* tile = new GameObject();
+    tile->model = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
+    tile->Scale(glm::vec3(TILE_SCALE));
+    tile->isRoad = true;
+    return tile;
+}
+
+void AddObstaclesToChunk(MapChunk* chunk) {
+    const int RIGHT = (CHUNK_WIDTH - ROAD_WIDTH) / 2 + 1;
+    const int LEFT = CHUNK_WIDTH - RIGHT + 1;
+    const glm::vec3 CENTER_OFFSET = glm::vec3(
+        TILE_SIZE * CHUNK_WIDTH / 2,
+        0.0,
+        -TILE_SIZE * CHUNK_LENGTH / 2);
+
+    for (int z = 0; z < CHUNK_LENGTH; z++) {
+        for (int x = RIGHT; x < LEFT; x++) {
+            if (Core::RandomFloat() < OBSTACLE_SPAWN_CHANCE) {
+                GameObject* tile = GetObstacleTile();
+                chunk->AttachChild(tile);
+                tile->SetPos(CENTER_OFFSET + glm::vec3(
+                    -x * TILE_SIZE,
+                    0.0f,
+                    z * TILE_SIZE));
+            }
+        }
+    }
+}
+
 void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
     MapChunk* chunk = new MapChunk(Render::LoadModel(model));
     chunk->isRoad = true;
@@ -107,6 +137,7 @@ void MapChunkBuilder::AddNext(const char* model, const Direction& exitDir) {
     if (firstChunk == nullptr) {
         firstChunk = chunk;
     }
+    AddObstaclesToChunk(chunk);
     chunks.push_back(chunk);
 }
 

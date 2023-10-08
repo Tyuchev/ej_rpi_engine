@@ -12,6 +12,7 @@
 class Mapgen {
 public:
     Mapgen(Game::PodRacer* const player);
+    ~Mapgen();
     void Generate();
     void Draw();
 

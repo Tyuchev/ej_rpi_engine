@@ -7,30 +7,42 @@
 #include "gtc/quaternion.hpp"
 #include "core/random.h"
 #include <iostream>
-
 #include "mapparser.h"
+
 
 // Should be used for fog shader later as well;
 constexpr float RENDER_DISTANCE = 100000.0f;
 constexpr float CHUNK_REMOVAL_DISTANCE = 200.0f;
 constexpr float CHUNK_ADD_DISTANCE = 100.0f;
+
+// Debug flags.
 constexpr bool MANUAL_CHUNK_DEBUG = false;
 constexpr bool ONLY_STRAIGHT_CHUNKS = true;
+
+MapChunk* debugChunk = nullptr;
 
 MapChunkBuilder builder = MapChunkBuilder();
 
 Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
+    // TODO: Replace by function returning random obstacle model.
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
 
     if (MANUAL_CHUNK_DEBUG) {
+        //debugChunk = MapParser::FromData("assets/chunk_data/road_straight.bin");
+        //debugChunk->SetPos(glm::vec3(-CHUNK_WIDTH/2.0f, 0.0f, -CHUNK_LENGTH/2.0f) * TILE_SCALE);
+        builder.AddNext("assets/chunk_models/road_straight_no_rocks.glb", Direction::North);
         //builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
         //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
         //builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
     }
     else {
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/road_straight_no_rocks.glb", Direction::North);
     }
+}
+
+Mapgen::~Mapgen() {
+    delete debugChunk;
 }
 
 void PlaceNextChunk() {
@@ -52,7 +64,7 @@ void PlaceNextChunk() {
     }
     // Straight
     else {
-        builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/road_straight_no_rocks.glb", Direction::North);
     }
 }
 
@@ -82,6 +94,9 @@ void Mapgen::Draw() {
         if (MANUAL_CHUNK_DEBUG || glm::distance(chunk->GetPos(), player->position) < RENDER_DISTANCE) {
             chunk->Draw();
         }
+    }
+    if (debugChunk != nullptr) {
+        debugChunk->Draw();
     }
 }
 

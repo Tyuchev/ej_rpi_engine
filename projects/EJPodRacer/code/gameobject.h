@@ -37,6 +37,7 @@ public:
 	void Translate(glm::vec3 dir);
     void Rotate(glm::vec3 axis, float rad);
 	glm::vec3 GetPos() const;
+    glm::vec3 GetWorldPos() const;
     void SetPos(glm::vec3 pos);
 	void Scale(glm::vec3 amount);
     void AttachChild(GameObject* child);
@@ -47,6 +48,7 @@ public:
     bool isActive = true;
 
     GameObject();
+    ~GameObject();
 
     virtual void Draw() const;
     virtual void Update(float deltaTime) {};

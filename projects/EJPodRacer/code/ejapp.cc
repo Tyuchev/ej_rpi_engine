@@ -196,7 +196,7 @@ EJApp::Run()
             if (t >= 2 * 3.14159) {
                 t = 0.0f;
             }
-            Render::RenderDevice::SetRoadTurnFactor(sin(t));
+            //Render::RenderDevice::SetRoadTurnFactor(sin(t));
         }
 
         racer.Update(dt);

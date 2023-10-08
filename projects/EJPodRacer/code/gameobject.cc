@@ -16,6 +16,12 @@ glm::vec3 GameObject::GetPos() const {
 	return glm::vec3(transformMat[3][0], transformMat[3][1], transformMat[3][2]);
 }
 
+glm::vec3 GameObject::GetWorldPos() const {
+    if (parent == nullptr)
+        return GetPos();
+    return parent->GetWorldPos() + GetPos();
+}
+
 void GameObject::SetPos(glm::vec3 pos) {
     // first three elements of last column
     transformMat[3][0] = pos.x;
@@ -60,6 +66,13 @@ GameObject::GameObject() {
     parent = nullptr;
 }
 
+GameObject::~GameObject() {
+    for (GameObject* child : children) {
+        delete child;
+    }
+    children.clear();
+}
+
 void GameObject::Draw() const {
     if (!isActive) 
         return;
@@ -70,7 +83,7 @@ void GameObject::Render(glm::mat4 ctm) const {
     ctm = ctm * transformMat;
     if (model < INVALID_MODEL_ID) {
         // Children's scaling is independent of parent's for now.
-        Render::RenderDevice::Draw(model, ctm * scalingMat, GetPos(), isRoad);
+        Render::RenderDevice::Draw(model, ctm * scalingMat, GetWorldPos(), isRoad);
     }
     for(GameObject* child : children) {
         child->Render(ctm);

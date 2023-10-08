@@ -29,7 +29,7 @@ layout(location=10) uniform vec4 CameraPosition;
 
 
 const float FOG_DENSITY = 0.015f;
-const vec4 FOG_COLOR = vec4(0.05f, 0.05f, 0.05f, 1.0f);
+const vec4 FOG_COLOR = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 layout(std430, binding = 3) readonly buffer VisiblePointLightIndicesBuffer
 {

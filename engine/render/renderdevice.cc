@@ -362,7 +362,9 @@ RenderDevice::StaticForwardPass()
     glUniform2i(glGetUniformLocation(programHandle, "NumTiles"), LightServer::GetWorkGroupsX(), LightServer::GetWorkGroupsY());
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
     
-    glUniform4fv(glGetUniformLocation(programHandle, "CameraPosition"), 1, &mainCamera->view[3][0]);
+    // Shade cam location fix.
+    //glUniform4fv(glGetUniformLocation(programHandle, "CameraPosition"), 1, &mainCamera->view[3][0]);
+    glUniform4fv(glGetUniformLocation(programHandle, "CameraPosition"), 1, &mainCamera->invView[3][0]);
 
     LightServer::Update(staticGeometryProgram);
 

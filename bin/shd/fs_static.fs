@@ -27,6 +27,10 @@ layout(location=9) uniform float AlphaCutoff;
 
 layout(location=10) uniform vec4 CameraPosition;
 
+
+const float FOG_DENSITY = 0.015f;
+const vec4 FOG_COLOR = vec4(0.05f, 0.05f, 0.05f, 1.0f);
+
 layout(std430, binding = 3) readonly buffer VisiblePointLightIndicesBuffer
 {
 	VisibleIndex data[];
@@ -67,6 +71,13 @@ vec3 CalculateGlobalLight(vec3 V, vec3 N, vec3 P, vec4 diffuseColor)
 }
 
 const vec3 AmbientLight = vec3(0.15f);
+
+float getFog()
+{
+    float fogDist = length(in_WorldSpacePos - CameraPosition.xyz);
+    float fogAmount = 1.0f - exp2(-FOG_DENSITY * FOG_DENSITY * fogDist * fogDist * 1.442695);
+    return fogAmount;
+}
 
 void main()
 {
@@ -110,5 +121,8 @@ void main()
         light += diffuse * radiance;
     }
 
-    out_Color = vec4(light.rgb * baseColor.rgb + emissive, 1.0f);
+    float fogAmount = getFog();
+
+    vec4 col = vec4(light.rgb * baseColor.rgb + emissive, 1.0f);
+    out_Color = mix(col, FOG_COLOR, fogAmount);
 }

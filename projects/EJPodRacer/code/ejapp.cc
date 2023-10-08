@@ -29,6 +29,8 @@ using namespace Render;
 namespace Game
 {
 
+float fps;
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -175,6 +177,7 @@ EJApp::Run()
     // game loop
     while (this->window->IsOpen())
 	{
+        fps = 1 / dt;
         Render::RenderDevice::SetPlayerPos(racer.position);
         auto timeStart = std::chrono::steady_clock::now();
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -278,7 +281,9 @@ EJApp::RenderNanoVG(NVGcontext* vg)
     nvgFontSize(vg, 16.0f);
     nvgFontFace(vg, "sans");
     nvgFillColor(vg, nvgRGBA(255, 255, 255, 128));
-    nvgText(vg, 0, 30, "James' changes - Testing, testing... Everything seems to be in order.", NULL);
+    std::string fpsText = "Fps: ";
+    fpsText += std::to_string(fps);
+    nvgText(vg, 0, 30, fpsText.c_str(), NULL);
 
     nvgRestore(vg);
 }

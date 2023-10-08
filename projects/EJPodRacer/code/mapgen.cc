@@ -31,13 +31,13 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     if (MANUAL_CHUNK_DEBUG) {
         //debugChunk = MapParser::FromData("assets/chunk_data/road_straight.bin");
         //debugChunk->SetPos(glm::vec3(-CHUNK_WIDTH/2.0f, 0.0f, -CHUNK_LENGTH/2.0f) * TILE_SCALE);
-        builder.AddNext("assets/chunk_models/road_straight_no_rocks.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/troad_straight.glb", Direction::North);
         //builder.AddNext("assets/chunk_models/road_right.glb", Direction::East);
         //builder.AddNext("assets/chunk_models/road_left.glb", Direction::West);
         //builder.AddNext("assets/chunk_models/road_straight.glb", Direction::North);
     }
     else {
-        builder.AddNext("assets/chunk_models/road_straight_no_rocks.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/troad_straight.glb", Direction::North);
     }
 }
 
@@ -64,7 +64,7 @@ void PlaceNextChunk() {
     }
     // Straight
     else {
-        builder.AddNext("assets/chunk_models/road_straight_no_rocks.glb", Direction::North);
+        builder.AddNext("assets/chunk_models/troad_straight.glb", Direction::North);
     }
 }
 

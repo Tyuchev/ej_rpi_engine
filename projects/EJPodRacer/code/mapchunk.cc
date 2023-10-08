@@ -99,7 +99,6 @@ GameObject* GetObstacleTile() {
     GameObject* tile = new GameObject();
     tile->model = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
     tile->Scale(glm::vec3(TILE_SCALE));
-    tile->isRoad = true;
     return tile;
 }
 
@@ -115,6 +114,7 @@ void AddObstaclesToChunk(MapChunk* chunk) {
         for (int x = RIGHT; x < LEFT; x++) {
             if (Core::RandomFloat() < OBSTACLE_SPAWN_CHANCE) {
                 GameObject* tile = GetObstacleTile();
+                tile->isRoad = chunk->isRoad;
                 chunk->AttachChild(tile);
                 tile->SetPos(CENTER_OFFSET + glm::vec3(
                     -x * TILE_SIZE,

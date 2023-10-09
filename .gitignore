@@ -32,7 +32,10 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in/assets
+[Bb]in/assets/*
+![Bb]in/assets/system
+![Bb]in/assets/chunk_data
+![Bb]in/assets/chunk_models
 ![Bb]in/shd
 #[Oo]bj/
 [Ll]og/
@@ -46,6 +49,7 @@ imgui.ini
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
+.vscode/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -355,6 +359,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+.vscode/tasks.json
 
-.vscode/
-*.txt
+bin/score.txt

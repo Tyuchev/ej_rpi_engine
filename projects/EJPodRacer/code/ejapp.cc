@@ -130,7 +130,7 @@ EJApp::Run()
     //}
 
     PodRacer racer;
-    racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
+    racer.model = LoadModel("assets/system/podracer.glb");
     racer.position = glm::vec3(0.0f, 1.0f, 0.0f);
 
     ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");

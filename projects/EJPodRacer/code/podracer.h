@@ -43,9 +43,6 @@ struct PodRacer
     float rotZSmooth = 0;
 
     Render::ModelId model;
-    Render::ParticleEmitter* particleEmitterLeft;
-    Render::ParticleEmitter* particleEmitterRight;
-    float emitterOffset = -0.5f;
 
     Physics::ColliderId colliderID;
 
@@ -53,6 +50,10 @@ struct PodRacer
 
     void CheckCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions);
     void ResolveCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions) const;
+
+private:
+    void ApplyNewControls(const float& dt);
+    void ApplyDebugControls(const float& dt);
     
 
     // Hard-coded collision points from the Engine's test space simulation

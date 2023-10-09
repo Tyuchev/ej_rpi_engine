@@ -6,3 +6,7 @@ Original Engine Repo:
 Fredrik Lindahl (fredrik-lindahl@outlook.com)
 Johannes Hirche (johannes@gscept.com)
 Gustav Sterbrant (gustav@gscept.com)
+
+Any models that look fancy are derived from Kenney.nl's space kit:
+https://www.kenney.nl/assets/space-kit
+

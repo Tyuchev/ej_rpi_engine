@@ -3,6 +3,7 @@
 //  (C) 2019 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "config.h"
+#include <GL/glew.h>
 #include "textureresource.h"
 #include <cstring>
 #define STB_IMAGE_IMPLEMENTATION

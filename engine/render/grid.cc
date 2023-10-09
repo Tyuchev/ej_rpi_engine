@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "config.h"
 #include "grid.h"
+#include <GL/glew.h>
 #include <array>
 
 namespace Render

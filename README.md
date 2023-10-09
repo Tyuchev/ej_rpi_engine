@@ -18,6 +18,8 @@ Download FreeSans font & place the .ttf file into: {project_root}/bin/assets/fon
 Download found here under GNU GPL:
 https://github.com/opensourcedesign/fonts/blob/master/gnu-freefont_freesans/FreeSans.ttf
 
+We still use some of the placeholder Space assets, so for now, still download the assets from the LTU assignment & place them in a space_deprecated folder inside the asset folder
+
 
 ## Once set-up as above, run the executable from the terminal while in {project_root}/bin/
 

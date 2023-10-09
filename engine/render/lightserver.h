@@ -8,6 +8,7 @@
 */
 //------------------------------------------------------------------------------
 #include "renderdevice.h"
+#include <GL/glew.h>
 #include "shaderresource.h"
 #include "lightsources.h"
 #include <vector>

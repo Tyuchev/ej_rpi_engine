@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "config.h"
 #include "shaderresource.h"
+#include <GL/glew.h>
 #include <fstream>
 #include <string>
 #include <sstream>

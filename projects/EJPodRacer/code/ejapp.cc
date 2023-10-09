@@ -108,6 +108,9 @@ EJApp::Run()
     
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
+    // Collision Tracker
+    std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> collisionList;
+
     //const int numLights = 4;
     //Render::PointLightId lights[numLights];
     //// Setup lights
@@ -128,8 +131,7 @@ EJApp::Run()
 
     PodRacer racer;
     racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
-    // FIXME: For debug, remove.
-    racer.position = glm::vec3(1.23f, 2.23f, 3.23f);
+    racer.position = glm::vec3(0.0f, 1.0f, 0.0f);
 
     ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
     glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
@@ -138,6 +140,7 @@ EJApp::Run()
     double dt = 0.01667f;
 
     Mapgen mapgen(&racer);
+
 
     // Debug draw tests
     //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -203,7 +206,7 @@ EJApp::Run()
         }
 
         racer.Update(dt);
-        racer.CheckCollisions();
+        racer.CheckCollisions(collisionList);
 
         // Store all drawcalls in the render device
 

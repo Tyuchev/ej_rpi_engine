@@ -29,6 +29,7 @@ Render::ShaderProgramId lightCullingProgram;
 static GLuint fullscreenQuadVB;
 static GLuint fullscreenQuadVAO;
 
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -37,6 +38,21 @@ RenderDevice::RenderDevice() :
     frameSizeH(180)
 {
     // empty
+}
+
+void RenderDevice::SetPlayerPos(const glm::vec3& pos)
+{
+    Instance()->playerPos = pos;
+}
+
+void RenderDevice::SetRoadScale(const float& scale)
+{
+    Instance()->roadScale = scale;
+}
+
+void RenderDevice::SetRoadTurnFactor(const float& factor)
+{
+    Instance()->roadTurnFactor = factor;
 }
 
 void SetupFullscreenQuad()
@@ -149,9 +165,9 @@ void RenderDevice::Init()
     Debug::InitDebugRendering();
 }
 
-void RenderDevice::Draw(ModelId model, glm::mat4 localToWorld)
+void RenderDevice::Draw(ModelId model, glm::mat4 localToWorld, glm::vec3 objectPos, bool isRoad)
 {
-    Instance()->drawCommands.push_back({ model, localToWorld });
+    Instance()->drawCommands.push_back({ model, localToWorld, objectPos, isRoad});
 }
 
 //------------------------------------------------------------------------------
@@ -183,16 +199,20 @@ RenderDevice::StaticShadowPass()
     auto programHandle = Render::ShaderResource::GetProgramHandle(staticShadowProgram);
     glUseProgram(programHandle);
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "ViewProjection"), 1, false, &shadowCamera->viewProjection[0][0]);
+    glUniform1f(glGetUniformLocation(programHandle, "RoadScale"), roadScale);
+    glUniform1f(glGetUniformLocation(programHandle, "RoadTurnFactor"), roadTurnFactor);
 
     GLuint baseColorFactorLocation = glGetUniformLocation(programHandle, "BaseColorFactor");
     GLuint modelLocation = glGetUniformLocation(programHandle, "Model");
     GLuint alphaCutoffLocation = glGetUniformLocation(programHandle, "AlphaCutoff");
+    GLuint objectPosLocation = glGetUniformLocation(programHandle, "ObjectPosition");
 
     // Draw opaque first
     for (auto const& cmd : this->drawCommands)
     {
         Model const& model = GetModel(cmd.modelId);
         glUniformMatrix4fv(modelLocation, 1, false, &cmd.transform[0][0]);
+        glUniform3fv(objectPosLocation, 1, &cmd.objectPos[0]);
 
         for (auto const& mesh : model.meshes)
         {
@@ -239,16 +259,23 @@ RenderDevice::StaticGeometryPrepass()
     auto staticOpaquePrepassProgramHandle = Render::ShaderResource::GetProgramHandle(staticShadowProgram);
     glUseProgram(staticOpaquePrepassProgramHandle);
     glUniformMatrix4fv(glGetUniformLocation(staticOpaquePrepassProgramHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
+    glUniform3fv(glGetUniformLocation(staticOpaquePrepassProgramHandle, "PlayerPosition"), 1, &playerPos[0]);
+    glUniform1f(glGetUniformLocation(staticOpaquePrepassProgramHandle, "RoadScale"), roadScale);
+    glUniform1f(glGetUniformLocation(staticOpaquePrepassProgramHandle, "RoadTurnFactor"), roadTurnFactor);
     
     GLuint baseColorFactorLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "BaseColorFactor");
     GLuint modelLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "Model");
     GLuint alphaCutoffLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "AlphaCutoff");
+    GLuint isRoadLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "IsRoad");
+    GLuint objectPosLocation = glGetUniformLocation(staticOpaquePrepassProgramHandle, "ObjectPosition");
 
     // Opaque
     for (auto const& cmd : this->drawCommands)
     {
         Model const& model = GetModel(cmd.modelId);
         glUniformMatrix4fv(modelLocation, 1, false, &cmd.transform[0][0]);
+        glUniform1i(isRoadLocation, cmd.isRoad);
+        glUniform3fv(objectPosLocation, 1, &cmd.objectPos[0]);
 
         for (auto const& mesh : model.meshes)
         {
@@ -335,7 +362,9 @@ RenderDevice::StaticForwardPass()
     glUniform2i(glGetUniformLocation(programHandle, "NumTiles"), LightServer::GetWorkGroupsX(), LightServer::GetWorkGroupsY());
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
     
-    glUniform4fv(glGetUniformLocation(programHandle, "CameraPosition"), 1, &mainCamera->view[3][0]);
+    // Shade cam location fix.
+    //glUniform4fv(glGetUniformLocation(programHandle, "CameraPosition"), 1, &mainCamera->view[3][0]);
+    glUniform4fv(glGetUniformLocation(programHandle, "CameraPosition"), 1, &mainCamera->invView[3][0]);
 
     LightServer::Update(staticGeometryProgram);
 
@@ -344,6 +373,9 @@ RenderDevice::StaticForwardPass()
     glUniform1i(glGetUniformLocation(programHandle, "GlobalShadowMap"), 16);
     Camera* globalShadowCamera = CameraManager::GetCamera(CAMERA_SHADOW);
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "GlobalShadowMatrix"), 1, false, &globalShadowCamera->viewProjection[0][0]);
+    glUniform3fv(glGetUniformLocation(programHandle, "PlayerPosition"), 1, &playerPos[0]);
+    glUniform1f(glGetUniformLocation(programHandle, "RoadScale"), roadScale);
+    glUniform1f(glGetUniformLocation(programHandle, "RoadTurnFactor"), roadTurnFactor);
 
     GLuint baseColorFactorLocation = glGetUniformLocation(programHandle, "BaseColorFactor");
     GLuint emissiveFactorLocation = glGetUniformLocation(programHandle, "EmissiveFactor");
@@ -351,12 +383,16 @@ RenderDevice::StaticForwardPass()
     GLuint roughnessFactorLocation = glGetUniformLocation(programHandle, "RoughnessFactor");
     GLuint modelLocation = glGetUniformLocation(programHandle, "Model");
     GLuint alphaCutoffLocation = glGetUniformLocation(programHandle, "AlphaCutoff");
+    GLuint isRoadLocation = glGetUniformLocation(programHandle, "IsRoad");
+    GLuint objectPosLocation = glGetUniformLocation(programHandle, "ObjectPosition");
 
     // Draw opaque first
     for (auto const& cmd : this->drawCommands)
     {
         Model const& model = GetModel(cmd.modelId);
         glUniformMatrix4fv(modelLocation, 1, false, &cmd.transform[0][0]);
+        glUniform1i(isRoadLocation, cmd.isRoad);
+        glUniform3fv(objectPosLocation, 1, &cmd.objectPos[0]);
 
         for (auto const& mesh : model.meshes)
         {

@@ -367,6 +367,7 @@ LoadModel(std::string name)
 	}
 
 	n_warning("Trying to load invalid model named '%s'!\n", name.c_str());
+	assert(false);
 	return LoadModel("assets/error.glb");
 }
 

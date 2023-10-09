@@ -11,6 +11,11 @@ layout(location=3) out vec2 out_TexCoords;
 
 uniform mat4 ViewProjection;
 uniform mat4 Model;
+uniform bool IsRoad;
+uniform vec3 PlayerPosition;
+uniform vec3 ObjectPosition;
+uniform float RoadScale;
+uniform float RoadTurnFactor;
 
 invariant gl_Position;
 
@@ -19,6 +24,20 @@ void main()
 	out_TexCoords = in_TexCoord_0;
 	// BUG: this must be calculated EXACTLY the same way as in our vs_static shader, otherwise, we get zbuffer fighting since the write to gl_Position is not invariant.
 	// 	    check out https://stackoverflow.com/a/46920273
-	vec4 wPos = Model * vec4(in_Position, 1.0f);
+	vec4 wPos;
+	if (!IsRoad)
+	{
+		wPos = (Model * vec4(in_Position, 1.0f));
+	}
+	else
+	{
+		const float curveDistance = 30.0f;
+		const float curveStrength = 1.5f;
+		float dist = ObjectPosition.z / RoadScale + in_Position.z - PlayerPosition.z / RoadScale;
+		dist = clamp(dist, 0.0f, curveDistance - 0.5f);
+		float newY = curveStrength * (log(curveDistance - dist) - log(curveDistance));
+		float newX = newY * RoadTurnFactor;
+		wPos = (Model * vec4(in_Position + vec3(newX * 5.0f, newY, 0.0f), 1.0f));
+	}
 	gl_Position = ViewProjection * wPos;
 }

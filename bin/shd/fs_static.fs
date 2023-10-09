@@ -27,6 +27,10 @@ layout(location=9) uniform float AlphaCutoff;
 
 layout(location=10) uniform vec4 CameraPosition;
 
+
+const float FOG_DENSITY = 0.015f;
+const vec4 FOG_COLOR = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 layout(std430, binding = 3) readonly buffer VisiblePointLightIndicesBuffer
 {
 	VisibleIndex data[];
@@ -68,10 +72,19 @@ vec3 CalculateGlobalLight(vec3 V, vec3 N, vec3 P, vec4 diffuseColor)
 
 const vec3 AmbientLight = vec3(0.15f);
 
+float getFog()
+{
+    float fogDist = length(in_WorldSpacePos - CameraPosition.xyz);
+    float fogAmount = 1.0f - exp2(-FOG_DENSITY * FOG_DENSITY * fogDist * fogDist * 1.442695);
+    return fogAmount;
+}
+
 void main()
 {
+    vec3 modPos = in_WorldSpacePos;
+    vec4 modCoord = gl_FragCoord;  
 	// Determine which tile this fragment belongs to
-	ivec2 location = ivec2(gl_FragCoord.x, gl_FragCoord.y);
+	ivec2 location = ivec2(modCoord.x, modCoord.y);
 	ivec2 tileID = location / ivec2(TILE_SIZE, TILE_SIZE);
 	int index = tileID.y * NumTiles.x + tileID.x;
 
@@ -81,12 +94,12 @@ void main()
 	vec3 emissive = texture(EmissiveTexture, in_TexCoords).xyz;
 	vec3 occlusion = texture(OcclusionTexture, in_TexCoords).xyz;
     
-    vec3 V = normalize(CameraPosition.xyz - in_WorldSpacePos.xyz);
+    vec3 V = normalize(CameraPosition.xyz - modPos.xyz);
     vec3 N = in_Normal;
 
     vec3 light = AmbientLight;
 
-    light += CalculateGlobalLight(V, N, in_WorldSpacePos, baseColor);
+    light += CalculateGlobalLight(V, N, modPos, baseColor);
 
     int offset = index * MaxTileLights;
     for (int i = 0; i < MaxTileLights && visiblePointLightIndicesBuffer.data[offset + i].index != -1; i++)
@@ -96,7 +109,7 @@ void main()
         vec3 LightColor = pointLightColorsBuffer.data[lightIndex].rgb;
         float LightRadius = pointLightRadiiBuffer.data[lightIndex];
         
-        vec3 L = LightPos - in_WorldSpacePos;
+        vec3 L = LightPos - modPos;
 
         float lightDistance = length(L);
         float x = lightDistance / LightRadius;
@@ -108,5 +121,8 @@ void main()
         light += diffuse * radiance;
     }
 
-    out_Color = vec4(light.rgb * baseColor.rgb + emissive, 1.0f);
+    float fogAmount = getFog();
+
+    vec4 col = vec4(light.rgb * baseColor.rgb + emissive, 1.0f);
+    out_Color = mix(col, FOG_COLOR, fogAmount);
 }

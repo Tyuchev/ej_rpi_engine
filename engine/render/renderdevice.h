@@ -41,12 +41,18 @@ public:
     void operator=(const RenderDevice&) = delete;
 
     static void Init();
-    static void Draw(ModelId model, glm::mat4 localToWorld);
+    static void Draw(ModelId model, glm::mat4 localToWorld, glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f), bool isRoad = false);
     static void Render(Display::Window* wnd, float dt);
     static void SetSkybox(TextureResourceId tex);
+    static void SetPlayerPos(const glm::vec3& pos);
+    static void SetRoadScale(const float& scale);
+    static void SetRoadTurnFactor(const float& factor);
 
 private:
     GLuint forwardFrameBuffer;
+    glm::vec3 playerPos;
+    float roadScale = 1.0f;
+    float roadTurnFactor = 0.0f;
     union RenderTargets
     {
         GLuint RT[2];
@@ -62,6 +68,8 @@ private:
     {
         ModelId modelId;
         glm::mat4 transform;
+        glm::vec3 objectPos;
+        bool isRoad;
     };
 
     std::vector<DrawCommand> drawCommands;

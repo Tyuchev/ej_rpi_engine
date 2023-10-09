@@ -33,3 +33,10 @@ Our RPI 4 is running:
 
 * CMake
 * Compiler (tested on MSVC, GCC)
+
+## Changing the chunk data
+* Download [Flatbuffers version 23.3.3](https://github.com/google/flatbuffers/releases/tag/v23.3.3) and extract the executable somewhere you can access it.
+    * Alternatively compile it from this project.
+* `cd` into `bin/assets/chunk_data`
+* Run the `flatc` executable like this for every JSON file you've modified in `bin/assets/chunk_data`:
+    * `[FLATC_PATH] --binary [REPO_ROOT]/projects/EJPodRacer/code/chunkdata.fbs [REPO_ROOT]/bin/assets/chunk_data/[CHUNK_NAME].json`

@@ -20,7 +20,8 @@
 #include "render/physics.h"
 #include <chrono>
 #include "podracer.h"
-#include "highscore.h"
+#include "mapgen.h"
+#include "gameobject.h"
 
 using namespace Display;
 using namespace Render;
@@ -28,8 +29,7 @@ using namespace Render;
 namespace Game
 {
 
-const char* SCORE_FILE_PATH = "score.txt";
-HighscoreSystem scoreSystem(SCORE_FILE_PATH);
+float fps;
 
 //------------------------------------------------------------------------------
 /**
@@ -88,72 +88,9 @@ EJApp::Run()
     int w;
     int h;
     this->window->GetSize(w, h);
-
-    // Camera setup
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), float(w) / float(h), 0.01f, 1000.f);
     Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
     cam->projection = projection;
-
-    // load models/resources
-    ModelId models[6] = {
-        LoadModel("assets/space_deprecated/Asteroid_1.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_2.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_3.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_4.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_5.glb"),
-        LoadModel("assets/space_deprecated/Asteroid_6.glb")
-    };
-    Physics::ColliderMeshId colliderMeshes[6] = {
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_1_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_2_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_3_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_4_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_5_physics.glb"),
-        Physics::LoadColliderMesh("assets/space_deprecated/Asteroid_6_physics.glb")
-    };
-
-    // Models stored in a vector of tuples (named asteroids) with their ModelID, Physics Collider & mat4 position
-    std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
-    
-    // Setup asteroids near
-    for (int i = 0; i < 25; i++)
-    {
-        std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
-        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        std::get<0>(asteroid) = models[resourceIndex];
-        float span = 20.0f;
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span
-        );
-        glm::vec3 rotationAxis = normalize(translation);
-        float rotation = translation.x;
-        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
-        std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
-        std::get<2>(asteroid) = transform;
-        asteroids.push_back(asteroid);
-    }
-
-    // Setup asteroids far
-    for (int i = 0; i < 20; i++)
-    {
-        std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
-        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        std::get<0>(asteroid) = models[resourceIndex];
-        float span = 80.0f;
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span
-        );
-        glm::vec3 rotationAxis = normalize(translation);
-        float rotation = translation.x;
-        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
-        std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
-        std::get<2>(asteroid) = transform;
-        asteroids.push_back(asteroid);
-    }
 
     // Setup skybox
     std::vector<const char*> skybox
@@ -167,97 +104,130 @@ EJApp::Run()
     };
     TextureResourceId skyboxId = TextureResource::LoadCubemap("skybox", skybox, true);
     RenderDevice::SetSkybox(skyboxId);
+    RenderDevice::SetRoadScale(TILE_SCALE);
     
+    Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
-    // Setup lights
-    const int numLights = 4;
-    Render::PointLightId lights[numLights];
-    for (int i = 0; i < numLights; i++)
-    {
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * 20.0f,
-            Core::RandomFloatNTP() * 20.0f,
-            Core::RandomFloatNTP() * 20.0f
-        );
-        glm::vec3 color = glm::vec3(
-            Core::RandomFloat(),
-            Core::RandomFloat(),
-            Core::RandomFloat()
-        );
-        lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
-    }
+    //const int numLights = 4;
+    //Render::PointLightId lights[numLights];
+    //// Setup lights
+    //for (int i = 0; i < numLights; i++)
+    //{
+        //glm::vec3 translation = glm::vec3(
+            //Core::RandomFloatNTP() * 20.0f,
+            //Core::RandomFloatNTP() * 20.0f,
+            //Core::RandomFloatNTP() * 20.0f
+        //);
+        //glm::vec3 color = glm::vec3(
+            //Core::RandomFloat(),
+            //Core::RandomFloat(),
+            //Core::RandomFloat()
+        //);
+        //lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
+    //}
 
-    // Load Player model
     PodRacer racer;
     racer.model = LoadModel("assets/pod_racer/Models/GLTF format/craft_speederD.glb");
+    // FIXME: For debug, remove.
+    racer.position = glm::vec3(1.23f, 2.23f, 3.23f);
 
+    ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
+    glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
 
-    // Input mediums here
-    Input::Keyboard* kbd = Input::GetDefaultKeyboard();
-    // Only need to set up inputs here if used directly in this file
-    // The below line can probably be deleted once we release
-    Input::Mouse* mouse = Input::GetDefaultMouse();
-
-
-    // Start Timers
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;
-    
 
-    // Game loop
+    Mapgen mapgen(&racer);
+
+    // Debug draw tests
+    //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // +x is left of spawn origin
+    // +y is up of spawn origin
+    // +z is forward of spawn origin
+    {
+        //DebugDraw::ArrowStraight(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.0f, 1.0f)); // forward
+        //DebugDraw::ArrowStraight(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)); // right
+        //DebugDraw::ArrowStraight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // back
+        //DebugDraw::ArrowStraight(glm::vec3(-5.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // left
+        //DebugDraw::ArrowStraight(glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // up
+        //DebugDraw::ArrowStraight(glm::vec3(-15.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)); // down
+    }
+    //{
+        //float step = 2.0f * 3.1415f / 40.0f;
+        //for (int i = 0; i < 40; i++) {
+            //glm::vec3 dir(sin(step*i), 0.0f, cos(step*i));
+            //glm::vec3 pos = dir * 10.0f;
+            //DebugDraw::ArrowStraightOffset(pos, dir);
+            ////DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
+            ////DebugDraw::ArrowStraight(glm::vec3(5.0f * i, 0.0f, 0.0f), dir);
+        //}
+    //}
+    //{
+        //float range = 10.0f;
+        //float step = 1.0f;
+        //for (float f = -range; f >= range; f += step) {
+            //glm::vec3 dir(1.0f, 0.0f, f);
+            //dir = glm::normalize(dir);
+            ////DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
+            //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            
+        //}
+    //}
+
+    // game loop
     while (this->window->IsOpen())
 	{
+        fps = 1 / dt;
+        Render::RenderDevice::SetPlayerPos(racer.position);
         auto timeStart = std::chrono::steady_clock::now();
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
         
-        // GLFWPollEvents & resets user input (also manages held keys)
         this->window->Update();
 
-        // For Debugging?
-        if (kbd->pressed[Input::Key::Code::End])
+        if (kbd->pressed[Input::Key::Code::R])
         {
             ShaderResource::ReloadShaders();
         }
 
-        // Update checks for user input & controls/updates the model
+        // Road turn test.
+        {
+            static float t = 0.0f;
+            t += dt;
+            if (t >= 2 * 3.14159) {
+                t = 0.0f;
+            }
+            //Render::RenderDevice::SetRoadTurnFactor(sin(t));
+        }
+
         racer.Update(dt);
         racer.CheckCollisions();
 
-        
-        // Placeholder for actual score calcs. If keep at least make it non-static.
-        {
-            static float scoreTime = 0.0f;
-            scoreTime += dt;
-            if (scoreTime > 10.0) {
-                scoreTime = 0.0;
-                scoreSystem.currentScore++;
-            }
-        }
-
         // Store all drawcalls in the render device
-        // Obsticles
-        for (auto const& asteroid : asteroids)
-        {
-            RenderDevice::Draw(std::get<0>(asteroid), std::get<2>(asteroid));
-        }
-        // Player Model
+
         RenderDevice::Draw(racer.model, racer.transform);
+        //RenderDevice::Draw(groundPlane, groundTransform);
+        groundTransform = glm::translate(glm::vec3(racer.position.x, TILE_HEIGHT, racer.position.z));
+        groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 
 
-        // Then Execute the entire rendering pipeline
+        mapgen.Generate();
+        mapgen.Draw();
+
+        // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);
 
-
-		// transfer new frame to window
-		this->window->SwapBuffers();
+        // transfer new frame to window
+        this->window->SwapBuffers();
 
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
 
-        // Exit Program
+        //if (kbd->pressed[Input::Key::Code::R])
+            //mapgen.Generate();
+
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();
 	}
@@ -269,7 +239,6 @@ EJApp::Run()
 void
 EJApp::Exit()
 {
-    scoreSystem.Save();
     this->window->Close();
 }
 
@@ -312,12 +281,9 @@ EJApp::RenderNanoVG(NVGcontext* vg)
     nvgFontSize(vg, 16.0f);
     nvgFontFace(vg, "sans");
     nvgFillColor(vg, nvgRGBA(255, 255, 255, 128));
-    std::string score = "Current score: ";
-    score += std::to_string(scoreSystem.currentScore);
-    nvgText(vg, 0, 30, score.c_str(), NULL);
-    std::string highScore = "Highscore: ";
-    highScore += std::to_string(scoreSystem.previousHigh);
-    nvgText(vg, 0, 60, highScore.c_str(), NULL);
+    std::string fpsText = "Fps: ";
+    fpsText += std::to_string(fps);
+    nvgText(vg, 0, 30, fpsText.c_str(), NULL);
 
     nvgRestore(vg);
 }

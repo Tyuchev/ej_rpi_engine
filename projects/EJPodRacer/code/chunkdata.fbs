@@ -1,0 +1,11 @@
+namespace GameData;
+
+table ChunkData {
+    name:string;
+    exit_direction:string;
+    tile_map:[string];
+    rotation_map:[string];
+    meta_map:[string];
+}
+
+root_type ChunkData;

@@ -11,6 +11,14 @@
 
 namespace Game
 {
+
+enum class GameState {
+    Start,
+	Game,
+    NewHigh,
+    Death
+};
+
 class EJApp : public Core::App
 {
 public:
@@ -33,5 +41,6 @@ private:
 	void RenderNanoVG(NVGcontext* vg);
 
 	Display::Window* window;
+	GameState gameState = GameState::Start;
 };
 } // namespace Game

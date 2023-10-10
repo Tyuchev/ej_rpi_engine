@@ -22,6 +22,8 @@
 #include "podracer.h"
 #include "mapgen.h"
 #include "gameobject.h"
+#include "guihelper.h"
+#include "highscore.h"
 
 using namespace Display;
 using namespace Render;
@@ -30,6 +32,8 @@ namespace Game
 {
 
 float fps;
+double dt;
+HighscoreSystem scoreSystem = HighscoreSystem("score.txt");
 
 //------------------------------------------------------------------------------
 /**
@@ -111,24 +115,6 @@ EJApp::Run()
     // Collision Tracker
     std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> collisionList;
 
-    //const int numLights = 4;
-    //Render::PointLightId lights[numLights];
-    //// Setup lights
-    //for (int i = 0; i < numLights; i++)
-    //{
-        //glm::vec3 translation = glm::vec3(
-            //Core::RandomFloatNTP() * 20.0f,
-            //Core::RandomFloatNTP() * 20.0f,
-            //Core::RandomFloatNTP() * 20.0f
-        //);
-        //glm::vec3 color = glm::vec3(
-            //Core::RandomFloat(),
-            //Core::RandomFloat(),
-            //Core::RandomFloat()
-        //);
-        //lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
-    //}
-
     PodRacer racer;
     racer.model = LoadModel("assets/system/podracer.glb");
     racer.position = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -137,45 +123,9 @@ EJApp::Run()
     glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
 
     std::clock_t c_start = std::clock();
-    double dt = 0.01667f;
+    dt = 0.01667f;
 
     Mapgen mapgen(&racer);
-
-
-    // Debug draw tests
-    //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    // +x is left of spawn origin
-    // +y is up of spawn origin
-    // +z is forward of spawn origin
-    {
-        //DebugDraw::ArrowStraight(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.0f, 1.0f)); // forward
-        //DebugDraw::ArrowStraight(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)); // right
-        //DebugDraw::ArrowStraight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // back
-        //DebugDraw::ArrowStraight(glm::vec3(-5.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // left
-        //DebugDraw::ArrowStraight(glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // up
-        //DebugDraw::ArrowStraight(glm::vec3(-15.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)); // down
-    }
-    //{
-        //float step = 2.0f * 3.1415f / 40.0f;
-        //for (int i = 0; i < 40; i++) {
-            //glm::vec3 dir(sin(step*i), 0.0f, cos(step*i));
-            //glm::vec3 pos = dir * 10.0f;
-            //DebugDraw::ArrowStraightOffset(pos, dir);
-            ////DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
-            ////DebugDraw::ArrowStraight(glm::vec3(5.0f * i, 0.0f, 0.0f), dir);
-        //}
-    //}
-    //{
-        //float range = 10.0f;
-        //float step = 1.0f;
-        //for (float f = -range; f >= range; f += step) {
-            //glm::vec3 dir(1.0f, 0.0f, f);
-            //dir = glm::normalize(dir);
-            ////DebugDraw::ArrowStraight(glm::vec3(0.0f), dir);
-            //DebugDraw::ArrowStraight(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            
-        //}
-    //}
 
     // game loop
     while (this->window->IsOpen())
@@ -203,6 +153,18 @@ EJApp::Run()
                 t = 0.0f;
             }
             //Render::RenderDevice::SetRoadTurnFactor(sin(t));
+        }
+
+        // Temp score system.
+        if (gameState == GameState::Game)
+        {
+            static float t = 0.0f;
+            t += dt;
+            if (t > 1.0f)
+            {
+                scoreSystem.currentScore++;
+                t = 0.0f;
+            }
         }
 
         racer.Update(dt);
@@ -242,6 +204,7 @@ EJApp::Run()
 void
 EJApp::Exit()
 {
+    scoreSystem.Save();
     this->window->Close();
 }
 
@@ -265,28 +228,60 @@ EJApp::RenderUI()
 void
 EJApp::RenderNanoVG(NVGcontext* vg)
 {
+    static GameState prevState = this->gameState;
+    static float stateTime = 0.0f;
+    if (prevState != gameState) {
+        stateTime = 0.0f;
+        prevState = gameState;
+    }
+    else {
+        stateTime += dt;
+    }
     nvgSave(vg);
 
-    nvgBeginPath(vg);
-    nvgCircle(vg, 600, 100, 50);
-    NVGpaint paint;
-    paint = nvgLinearGradient(vg, 600, 100, 650, 150, nvgRGBA(255, 0, 0, 255), nvgRGBA(0, 255, 0, 255));
-    nvgFillPaint(vg, paint);
-    nvgFill(vg);
+    NVGcolor inMenuColor = nvgRGBA(255, 255, 255, 255);
+    NVGcolor inGameColor = nvgRGBA(255, 255, 255, 255);
+    NVGcolor backgroundColor = nvgRGBA(0, 0, 0, 255);
+    int width;
+    int height;
+    window->GetSize(width, height);
 
-
-
-    // Header
-    nvgBeginPath(vg);
-    nvgStrokeColor(vg, nvgRGBA(0, 0, 0, 32));
-    nvgStroke(vg);
-
-    nvgFontSize(vg, 16.0f);
-    nvgFontFace(vg, "sans");
-    nvgFillColor(vg, nvgRGBA(255, 255, 255, 128));
     std::string fpsText = "Fps: ";
     fpsText += std::to_string(fps);
-    nvgText(vg, 0, 30, fpsText.c_str(), NULL);
+    GUI::DrawLabel(vg, fpsText.c_str(), 16.0f, 10.0f, 10.0f, 100.0f, 30.0f, inGameColor);
+
+    if (gameState == GameState::Start) {
+        std::string startText;
+        if (stateTime < 1.0f) {
+            startText = "Get ready...";
+        }
+        else if (stateTime < 2.0f) {
+            startText = "Set...";
+        }
+        else {
+            gameState = GameState::Game;
+        }
+        GUI::DrawLabel(vg, startText.c_str(), 35.0, width / 2.0 - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inGameColor);
+    }
+
+    else if (gameState == GameState::Game) {
+        if (stateTime < 1.0f) {
+            GUI::DrawLabel(vg, "Go!", 35.0, width / 2.0 - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inGameColor);
+        }
+        std::string scoreText = "Current score: ";
+        scoreText += std::to_string(scoreSystem.currentScore);
+        GUI::DrawLabel(vg, scoreText.c_str(), 16.0f, width - 200.0f, 10.0f, 200.0f, 30.0f, inGameColor);
+
+        std::string hiScoreText = "Previous high: ";
+        hiScoreText += std::to_string(scoreSystem.previousHigh);
+        GUI::DrawLabel(vg, hiScoreText.c_str(), 16.0f, width - 200.0f, 30.0f, 200.0f, 30.0f, inGameColor);
+    }
+
+    else if (gameState == GameState::Death) {
+        GUI::DrawFilledBox(vg, 0.0f, 0.0f, (float)width, (float)height, backgroundColor);
+        GUI::DrawLabel(vg, "Game Over", 35.0f, width / 2.0f - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inMenuColor);
+    }
+
 
     nvgRestore(vg);
 }

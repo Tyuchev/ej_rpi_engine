@@ -61,6 +61,7 @@ struct PodRacer
 private:
     void ApplyNewControls(const float& dt);
     void ApplyDebugControls(const float& dt);
+    void ApplyNoControls(const float& dt);
     
 
     // Hard-coded collision points from the Engine's test space simulation

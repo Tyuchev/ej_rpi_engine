@@ -34,6 +34,8 @@ namespace Game
 float fps;
 double dt;
 HighscoreSystem scoreSystem = HighscoreSystem("score.txt");
+// Set in game with tab.
+bool debugMode = false;
 
 //------------------------------------------------------------------------------
 /**
@@ -139,6 +141,27 @@ EJApp::Run()
 		glCullFace(GL_BACK);
         
         this->window->Update();
+
+        if (kbd->pressed[Input::Key::Code::Tab])
+        {
+            debugMode = !debugMode;
+        }
+
+        // Check state.
+        if (!debugMode) {
+            switch (gameState)
+            {
+            case GameState::Start:
+                racer.controlScheme = ControlScheme::NoControls;
+                break;
+            case GameState::Game:
+                racer.controlScheme = ControlScheme::NewControls;
+                break;
+            }
+        }
+        else {
+            racer.controlScheme = ControlScheme::DebugControls;
+        }
 
         if (kbd->pressed[Input::Key::Code::R])
         {

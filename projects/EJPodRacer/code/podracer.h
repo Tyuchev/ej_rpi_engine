@@ -19,6 +19,12 @@ namespace Render
 namespace Game
 {
 
+enum class ControlScheme {
+    NoControls,
+    NewControls,
+    DebugControls
+};
+
 struct PodRacer
 {
     PodRacer();
@@ -28,6 +34,7 @@ struct PodRacer
     glm::vec3 camPos = glm::vec3(0, 1.0f, -2.0f);
     glm::mat4 transform = glm::mat4(1);
     glm::vec3 linearVelocity = glm::vec3(0);
+    ControlScheme controlScheme = ControlScheme::NewControls;
 
     const float normalSpeed = 1.0f;
     const float maxSpeed = normalSpeed * 2.0f;

@@ -274,19 +274,19 @@ PodRacer::ApplyDebugControls(const float& dt)
 void
 PodRacer::Update(float dt)
 {
-    static bool useDebugControls = false;
-    if (kbd->pressed[Key::Tab])
+    switch(controlScheme)
     {
-        useDebugControls = !useDebugControls;
-    }
+        case ControlScheme::NewControls:
+            ApplyNewControls(dt);
+            break;
+        case ControlScheme::NoControls:
+            break;
+        case ControlScheme::DebugControls:
+            ApplyDebugControls(dt);
+            break;
+        default:
+            break;
 
-    if (!useDebugControls)
-    {
-        this->ApplyNewControls(dt);
-    }
-    else
-    {
-        this->ApplyDebugControls(dt);
     }
 }
 

@@ -23,7 +23,8 @@ MapChunk* debugChunk = nullptr;
 
 MapChunkBuilder builder = MapChunkBuilder();
 
-Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
+Mapgen::Mapgen() {
+    this->player = nullptr;
     this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
     // TODO: Replace by function returning random obstacle model.
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
@@ -39,6 +40,10 @@ Mapgen::Mapgen(Game::PodRacer* const player) : player(player) {
     else {
         builder.AddNext("assets/chunk_models/troad_straight.glb", Direction::North);
     }
+}
+
+void Mapgen::SetPlayer(Game::PodRacer* player) {
+    this->player = player;
 }
 
 Mapgen::~Mapgen() {
@@ -71,6 +76,8 @@ void PlaceNextChunk() {
 
 // Called every frame
 void Mapgen::Generate() {
+    if (player == nullptr)
+        return;
     // +x is left of spawn origin
     // +y is up of spawn origin
     // +z is forward of spawn origin
@@ -89,6 +96,8 @@ void Mapgen::Generate() {
 
 // Call in render loop before RenderDevice::Render()
 void Mapgen::Draw() {
+    if (player == nullptr)
+        return;
     const std::vector<MapChunk*> chunks = builder.GetChunks();
     for (MapChunk* chunk : chunks) {
         if (MANUAL_CHUNK_DEBUG || glm::distance(chunk->GetPos(), player->position) < RENDER_DISTANCE) {

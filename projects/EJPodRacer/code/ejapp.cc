@@ -127,7 +127,8 @@ EJApp::Run()
     std::clock_t c_start = std::clock();
     dt = 0.01667f;
 
-    Mapgen mapgen(&racer);
+    Mapgen mapgen = Mapgen();
+    mapgen.SetPlayer(&racer);
 
     // game loop
     while (this->window->IsOpen())

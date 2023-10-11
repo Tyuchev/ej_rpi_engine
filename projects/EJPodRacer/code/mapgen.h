@@ -11,15 +11,16 @@
 
 class Mapgen {
 public:
-    Mapgen(Game::PodRacer* const player);
+    Mapgen();
     ~Mapgen();
     void Generate();
     void Draw();
+    void SetPlayer(Game::PodRacer* player);
 
 private:
 
     std::vector<Render::PointLightId> lights;
-    Game::PodRacer* const player;
+    Game::PodRacer* player;
     Render::ModelId sidesModelId;
     Render::ModelId obstaclesModelId;
 };

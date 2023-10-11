@@ -122,91 +122,96 @@ EJApp::Run()
     std::clock_t c_start = std::clock();
     dt = 0.01667f;
 
-
     // game loop
     while (this->window->IsOpen())
 	{
-        fps = 1 / dt;
-        Render::RenderDevice::SetPlayerPos(racer.position);
-        auto timeStart = std::chrono::steady_clock::now();
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-        
-        this->window->Update();
-
-        if (kbd->pressed[Input::Key::Code::Tab])
-        {
-            debugMode = !debugMode;
-        }
-
-        // Check state.
-        if (!debugMode) {
-            switch (gameState)
-            {
-            case GameState::Start:
-                racer.controlScheme = ControlScheme::NoControls;
-                break;
-            case GameState::Game:
-                racer.controlScheme = ControlScheme::NewControls;
-                break;
-            }
-        }
-        else {
-            racer.controlScheme = ControlScheme::DebugControls;
-        }
-
-        if (kbd->pressed[Input::Key::Code::R])
-        {
-            ShaderResource::ReloadShaders();
-        }
-
-        // Road turn test.
-        {
-            static float t = 0.0f;
-            t += dt;
-            if (t >= 2 * 3.14159) {
-                t = 0.0f;
-            }
-            //Render::RenderDevice::SetRoadTurnFactor(sin(t));
-        }
-
-        // Temp score system.
-        if (gameState == GameState::Game)
-        {
-            static float t = 0.0f;
-            t += dt;
-            if (t > 1.0f)
-            {
-                scoreSystem.currentScore++;
-                t = 0.0f;
-            }
-        }
-
-        racer.Update(dt);
-        racer.CheckCollisions(collisionList);
-
-        // Store all drawcalls in the render device
-
-        RenderDevice::Draw(racer.model, racer.transform, racer.position, true);
-
-
-        mapgen.Generate();
-        mapgen.Draw();
-
-        // Execute the entire rendering pipeline
-        RenderDevice::Render(this->window, dt);
-
-        // transfer new frame to window
-        this->window->SwapBuffers();
-
-        auto timeEnd = std::chrono::steady_clock::now();
-        dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
-
+        this->RunGame();
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();
 	}
+}
+
+void
+EJApp::RunGame()
+{
+    fps = 1 / dt;
+    Render::RenderDevice::SetPlayerPos(racer.position);
+    auto timeStart = std::chrono::steady_clock::now();
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    
+    this->window->Update();
+
+    if (kbd->pressed[Input::Key::Code::Tab])
+    {
+        debugMode = !debugMode;
+    }
+
+    // Check state.
+    if (!debugMode) {
+        switch (gameState)
+        {
+        case GameState::Start:
+            racer.controlScheme = ControlScheme::NoControls;
+            break;
+        case GameState::Game:
+            racer.controlScheme = ControlScheme::NewControls;
+            break;
+        }
+    }
+    else {
+        racer.controlScheme = ControlScheme::DebugControls;
+    }
+
+    if (kbd->pressed[Input::Key::Code::R])
+    {
+        ShaderResource::ReloadShaders();
+    }
+
+    // Road turn test.
+    {
+        static float t = 0.0f;
+        t += dt;
+        if (t >= 2 * 3.14159) {
+            t = 0.0f;
+        }
+        //Render::RenderDevice::SetRoadTurnFactor(sin(t));
+    }
+
+    // Temp score system.
+    if (gameState == GameState::Game)
+    {
+        static float t = 0.0f;
+        t += dt;
+        if (t > 1.0f)
+        {
+            scoreSystem.currentScore++;
+            t = 0.0f;
+        }
+    }
+
+    racer.Update(dt);
+    racer.CheckCollisions(collisionList);
+
+    // Store all drawcalls in the render device
+
+    RenderDevice::Draw(racer.model, racer.transform, racer.position, true);
+
+
+    mapgen.Generate();
+    mapgen.Draw();
+
+    // Execute the entire rendering pipeline
+    RenderDevice::Render(this->window, dt);
+
+    // transfer new frame to window
+    this->window->SwapBuffers();
+
+    auto timeEnd = std::chrono::steady_clock::now();
+    dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
+
 }
 
 void

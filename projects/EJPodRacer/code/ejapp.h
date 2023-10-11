@@ -35,6 +35,7 @@ public:
 	void Exit();
 
 	void StartGame();
+	void RunGame();
 	void EndGame();
 private:
 

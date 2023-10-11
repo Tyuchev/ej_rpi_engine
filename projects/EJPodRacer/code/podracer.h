@@ -28,6 +28,7 @@ enum class ControlScheme {
 struct PodRacer
 {
     PodRacer();
+    void Init();
     
     glm::vec3 position = glm::vec3(0);
     glm::quat orientation = glm::identity<glm::quat>();

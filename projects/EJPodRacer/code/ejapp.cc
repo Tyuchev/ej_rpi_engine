@@ -36,6 +36,11 @@ double dt;
 HighscoreSystem scoreSystem = HighscoreSystem("score.txt");
 // Set in game with tab.
 bool debugMode = false;
+Input::Keyboard* kbd;
+// Collision Tracker
+std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> collisionList;
+PodRacer racer;
+Mapgen mapgen;
 
 //------------------------------------------------------------------------------
 /**
@@ -112,23 +117,11 @@ EJApp::Run()
     RenderDevice::SetSkybox(skyboxId);
     RenderDevice::SetRoadScale(TILE_SCALE);
     
-    Input::Keyboard* kbd = Input::GetDefaultKeyboard();
-
-    // Collision Tracker
-    std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> collisionList;
-
-    PodRacer racer;
-    racer.model = LoadModel("assets/system/podracer.glb");
-    racer.position = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    ModelId groundPlane = LoadModel("assets/pod_racer/Models/GLTF format/terrain.glb");
-    glm::mat4 groundTransform = glm::scale(glm::mat4(1), glm::vec3(100.0f, 0.0f, 100.0f));
+    StartGame();
 
     std::clock_t c_start = std::clock();
     dt = 0.01667f;
 
-    Mapgen mapgen = Mapgen();
-    mapgen.SetPlayer(&racer);
 
     // game loop
     while (this->window->IsOpen())
@@ -197,9 +190,6 @@ EJApp::Run()
         // Store all drawcalls in the render device
 
         RenderDevice::Draw(racer.model, racer.transform, racer.position, true);
-        //RenderDevice::Draw(groundPlane, groundTransform);
-        groundTransform = glm::translate(glm::vec3(racer.position.x, TILE_HEIGHT, racer.position.z));
-        groundTransform = glm::scale(groundTransform, glm::vec3(100.0f, 0.0f, 100.0f));
 
 
         mapgen.Generate();
@@ -214,12 +204,26 @@ EJApp::Run()
         auto timeEnd = std::chrono::steady_clock::now();
         dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
 
-        //if (kbd->pressed[Input::Key::Code::R])
-            //mapgen.Generate();
-
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();
 	}
+}
+
+void
+EJApp::StartGame()
+{
+    kbd = Input::GetDefaultKeyboard();
+    racer.Init();
+    racer.model = LoadModel("assets/system/podracer.glb");
+    racer.position = glm::vec3(0.0f, 1.0f, 0.0f);
+    mapgen.Init();
+    mapgen.SetPlayer(&racer);
+}
+
+void
+EJApp::EndGame()
+{
+    scoreSystem.Save();
 }
 
 //------------------------------------------------------------------------------
@@ -228,7 +232,7 @@ EJApp::Run()
 void
 EJApp::Exit()
 {
-    scoreSystem.Save();
+    this->EndGame();
     this->window->Close();
 }
 

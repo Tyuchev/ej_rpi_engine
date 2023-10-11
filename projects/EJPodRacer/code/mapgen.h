@@ -13,6 +13,7 @@ class Mapgen {
 public:
     Mapgen();
     ~Mapgen();
+    void Init();
     void Generate();
     void Draw();
     void SetPlayer(Game::PodRacer* player);

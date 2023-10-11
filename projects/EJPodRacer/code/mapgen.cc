@@ -23,8 +23,14 @@ MapChunk* debugChunk = nullptr;
 
 MapChunkBuilder builder = MapChunkBuilder();
 
+bool wasMapInit = false;
+
 Mapgen::Mapgen() {
     this->player = nullptr;
+}
+
+// Don't call in constructor.
+void Mapgen::Init() {
     this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
     // TODO: Replace by function returning random obstacle model.
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
@@ -40,6 +46,7 @@ Mapgen::Mapgen() {
     else {
         builder.AddNext("assets/chunk_models/troad_straight.glb", Direction::North);
     }
+    wasMapInit = true;
 }
 
 void Mapgen::SetPlayer(Game::PodRacer* player) {
@@ -78,6 +85,11 @@ void PlaceNextChunk() {
 void Mapgen::Generate() {
     if (player == nullptr)
         return;
+    if (!wasMapInit)
+    {
+        printf("Error! Mapgen::Init() wasn't called!\n");
+        return;
+    }
     // +x is left of spawn origin
     // +y is up of spawn origin
     // +z is forward of spawn origin

@@ -33,6 +33,9 @@ public:
 	void Run();
 	/// exit app
 	void Exit();
+
+	void StartGame();
+	void EndGame();
 private:
 
 	/// show some ui things

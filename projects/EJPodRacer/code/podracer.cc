@@ -17,14 +17,23 @@ using namespace Render;
 Mouse* mouse;
 Keyboard* kbd;
 Camera* cam;
+bool wasPodInit = false;
 
 namespace Game
 {
 PodRacer::PodRacer()
 {
+
+}
+
+// Don't call in constructor.
+void
+PodRacer::Init()
+{
     mouse = Input::GetDefaultMouse();
     kbd = Input::GetDefaultKeyboard();
     cam = CameraManager::GetCamera(CAMERA_MAIN);
+    wasPodInit = true;
 }
 
 void
@@ -316,6 +325,11 @@ PodRacer::ApplyNoControls(const float& dt)
 void
 PodRacer::Update(float dt)
 {
+    if (!wasPodInit)
+    {
+        printf("Error! PodRacer::Init() wasn't called!\n");
+        return;
+    }
     switch(controlScheme)
     {
         case ControlScheme::NewControls:

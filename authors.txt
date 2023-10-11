@@ -10,3 +10,5 @@ Gustav Sterbrant (gustav@gscept.com)
 Any models that look fancy are derived from Kenney.nl's space kit:
 https://www.kenney.nl/assets/space-kit
 
+Explosion sprite animation taken from: https://opengameart.org/content/explosion-7 
+

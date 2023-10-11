@@ -1,5 +1,6 @@
 #include "config.h"
 #include "guihelper.h"
+#include "render/stb_image.h"
 
 // Most code taken from nvg demo.c
 
@@ -65,6 +66,69 @@ void GUI::DrawButton(NVGcontext* vg, const char* text, float x, float y, float w
 	nvgText(vg, x+w*0.5f-tw*0.5f+iw*0.25f,y+h*0.5f,text, NULL);
 }
 
-void GUI::DrawExplosion(NVGcontext* vg, float x, float y, float w, float h) {
+// Taken from nanovg.c since it didn't wanna compile in there.
+int nvgCreateImage(NVGcontext* ctx, const char* filename, int imageFlags)
+{
+	int w, h, n, image;
+	unsigned char* img;
+	stbi_set_unpremultiply_on_load(1);
+	stbi_convert_iphone_png_to_rgb(1);
+	img = stbi_load(filename, &w, &h, &n, 4);
+	if (img == NULL) {
+		printf("Failed to load %s - %s\n", filename, stbi_failure_reason());
+		return 0;
+	}
+	image = nvgCreateImageRGBA(ctx, w, h, imageFlags, img);
+	stbi_image_free(img);
+	return image;
+}
 
+void GUI::DrawExplosion(NVGcontext* vg, float x, float y, float w, float h, float dt) {
+	const int NUM_FRAMES = 50;
+	static int frames[50] = {123};
+	if (frames[0] == 123) {
+		printf("once\n");
+		for (int i = 0; i < NUM_FRAMES; i++) {
+			char file[128];
+			snprintf(file, 128, "assets/explosion/tile%d.png", i);
+			frames[i] = nvgCreateImage(vg, file, 0);
+		}
+
+	}
+
+	const float FRAME_DELAY = 0.1f;
+	const float FRAME_SIZE = 100.0f;
+
+	static float frameTime = 0.0f;
+	static int currentFrame = 0;
+	if (frameTime > FRAME_DELAY) {
+		if (currentFrame < NUM_FRAMES) {
+			currentFrame++;
+			frameTime = 0.0f;
+		}
+		else {
+			currentFrame = 0;
+		}
+	}
+
+	DrawFilledBox(vg, x, y, w, h, nvgRGBA(0, 0, 0, 255));
+
+	nvgBeginPath(vg);
+
+	//float tx = 
+
+	//NVGpaint imgPaint = nvgImagePattern(vg, 0, 300.0, 100.0f, 100.0f, 0.0f, frames[currentFrame], 1.0f);
+	//NVGpaint imgPaint = nvgImagePattern(vg, 0.0f, 0.0f, 1000.0f, 500.0f, 0.0f, frames[currentFrame], 1.0f);
+	//NVGpaint imgPaint = nvgImagePattern(vg, x, y, x + 1000.0f, y + 500.0f, 0.0f, frames[currentFrame], 1.0f);
+	// Works.
+	NVGpaint imgPaint = nvgImagePattern(vg, x, y, FRAME_SIZE, FRAME_SIZE, 0.0f, frames[currentFrame], 1.0f);
+	
+	//nvgRect(vg, tx, ty, w, h);
+	//nvgRect(vg, x + tx, y + ty, TILE_XSIZE, TILE_YSIZE);
+	// Works.
+	nvgRect(vg, x, y, w, h);
+	nvgFillPaint(vg, imgPaint);
+	nvgFill(vg);
+
+	frameTime += dt;
 }

@@ -337,7 +337,14 @@ EJApp::RenderNanoVG(NVGcontext* vg)
 
     else if (gameState == GameState::PreDeath)
     {
-        if (stateTime > 3.0f)
+        if (stateTime < 3.0f)
+        {
+            GUI::DrawFilledBox(vg, 0.0f, 0.0f, (float)width, (float)height, nvgRGBA(255, 255, 255, 255));
+            GUI::DrawLabel(vg, "PreDeath", 35.0f, 10.0, 30.0f, 60.0f, 30.0f, nvgRGBA(0, 0, 0, 255));
+            const float xMove = 0.0f;
+            GUI::DrawExplosion(vg, width / 2.0f + stateTime * xMove, height / 2.0f, 100.0f, 100.0f, dt);
+        }
+        else
         {
             gameState = GameState::Death;
         }

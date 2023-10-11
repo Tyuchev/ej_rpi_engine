@@ -283,43 +283,61 @@ PodRacer::ApplyDebugControls(const float& dt)
 void
 PodRacer::ApplyNoControls(const float& dt)
 {
+    this->currentSpeed = 0.0f;
 
-    this->currentSpeed = 0;
+    float bankingDirection = 0.0f;
+
+    float maxTurn = 45.0f; //In degrees
+    // Apply Rotation/Banking to Model
+    float prevRotationZ = rotationZ;;
+    this->rotationZ += (bankingDirection * 2);
+    this->rotationZ = clamp(this->rotationZ, -maxTurn, maxTurn);
+    
+    float rotationZChange = this->rotationZ - prevRotationZ;
+    float smoothRotationZChange = rotationZChange * dt;
+
+    float lateralTurnSpeed = 1.0f;
+    float turnAngle = this->rotationZ / maxTurn;
+
+    vec3 lateralMotion{0, 0, 0};
+
+    float turnSensitivity = 5;
+    if (rotationZ > turnSensitivity || rotationZ < -turnSensitivity)
+    {
+        lateralMotion.x = (turnAngle * -1) * lateralTurnSpeed * currentSpeed;
+        
+        if(this->currentSpeed < 0)
+        {
+            // Helps Reverse function more like a car would
+            lateralMotion *= -1;
+        }
+    }
+
+
+    
+    // Motion Resolution
+
     vec3 desiredVelocity = vec3(0, 0, this->currentSpeed);
     desiredVelocity = this->transform * vec4(desiredVelocity, 0.0f);
 
-    this->linearVelocity = mix(this->linearVelocity, desiredVelocity, dt * acceleration);
-    this->position += this->linearVelocity * dt * 10.0f;
+    this->linearVelocity = mix(this->linearVelocity, desiredVelocity, dt);
 
-
-    // Rotations - Left, Right, Up, Down input
-    float rotX = 0.0f;
-    float rotY = 0.0f;
-    float rotZ = 0.0f;
-
-    const float rotationSpeed = 1.8f * dt;
-
-    // movement seems to be smoothed by using GLM::mix
-    rotXSmooth = mix(rotXSmooth, rotX * rotationSpeed, dt * cameraSmoothFactor);
-    rotYSmooth = mix(rotYSmooth, rotY * rotationSpeed, dt * cameraSmoothFactor);
-    rotZSmooth = mix(rotZSmooth, rotZ * rotationSpeed, dt * cameraSmoothFactor);
-
-    quat localOrientation = quat(vec3(-rotYSmooth, rotXSmooth, rotZSmooth));
+    // Orient models correctly
+    quat localOrientation = quat(vec3(0, 0, smoothRotationZChange));
     this->orientation = this->orientation * localOrientation;
-    this->rotationZ -= rotXSmooth;
-    this->rotationZ = clamp(this->rotationZ, -45.0f, 45.0f);
 
     // Set translation matrix by takeing position * orientation
     mat4 T = translate(this->position) * (mat4)this->orientation;
-    this->transform = T * (mat4)quat(vec3(0, 0, rotationZ));
-    this->rotationZ = mix(this->rotationZ, 0.0f, dt * cameraSmoothFactor);
+    this->transform = T * (mat4)quat(vec3(0, 0, smoothRotationZChange));
+
 
     // update camera view transform
     // camera is offset by (0, camOffsetY, -4.0) 
     vec3 desiredCamPos = this->position + vec3(this->transform * vec4(0, camOffsetY, -4.0f, 0));
     this->camPos = mix(this->camPos, desiredCamPos, dt * cameraSmoothFactor);
-    cam->view = lookAt(this->camPos, this->camPos + vec3(this->transform[2]), vec3(this->transform[1]));
 
+    // Change 3rd (Up) vector in lookAt function, to change how the camera tilts
+    cam->view = lookAt(this->camPos, this->position + vec3(this->transform[2]) * 50.0f, vec3(0, 1, 0));
 }
 
 void

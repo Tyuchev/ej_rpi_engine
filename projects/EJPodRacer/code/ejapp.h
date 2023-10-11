@@ -18,6 +18,7 @@ enum class GameState {
     Start,
 	Game,
     NewHigh,
+	PreDeath,
     Death
 };
 
@@ -40,6 +41,7 @@ public:
 	void RunGame();
 	void EndGame();
 	void RestartGame();
+	void DoDeath();
 private:
 
 	/// show some ui things

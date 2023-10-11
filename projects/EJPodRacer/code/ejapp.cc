@@ -131,6 +131,12 @@ EJApp::Run()
 }
 
 void
+EJApp::DoDeath()
+{
+    gameState = GameState::PreDeath;
+}
+
+void
 EJApp::RunGame()
 {
     if (racer == nullptr || mapgen == nullptr)
@@ -157,6 +163,7 @@ EJApp::RunGame()
         switch (gameState)
         {
         case GameState::Start:
+        case GameState::PreDeath:
             racer->controlScheme = ControlScheme::NoControls;
             break;
         case GameState::Game:
@@ -171,7 +178,7 @@ EJApp::RunGame()
     if (kbd->pressed[Input::Key::Code::R])
     {
         //ShaderResource::ReloadShaders();
-        this->RestartGame();
+        DoDeath();
     }
 
     // Road turn test.
@@ -201,7 +208,10 @@ EJApp::RunGame()
 
     // Store all drawcalls in the render device
 
-    RenderDevice::Draw(racer->model, racer->transform, racer->position, true);
+    if (gameState != GameState::PreDeath)
+    {
+        RenderDevice::Draw(racer->model, racer->transform, racer->position, true);
+    }
 
 
     mapgen->Generate();
@@ -325,10 +335,23 @@ EJApp::RenderNanoVG(NVGcontext* vg)
         GUI::DrawLabel(vg, hiScoreText.c_str(), 16.0f, width - 200.0f, 30.0f, 200.0f, 30.0f, inGameColor);
     }
 
+    else if (gameState == GameState::PreDeath)
+    {
+        if (stateTime > 3.0f)
+        {
+            gameState = GameState::Death;
+        }
+    }
+
     else if (gameState == GameState::Death) {
         GUI::DrawFilledBox(vg, 0.0f, 0.0f, (float)width, (float)height, backgroundColor);
         GUI::DrawLabel(vg, "Game Over", 35.0f, width / 2.0f - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inMenuColor);
+        if (stateTime > 3.0f)
+        {
+            RestartGame();
+        }
     }
+
 
 
     nvgRestore(vg);

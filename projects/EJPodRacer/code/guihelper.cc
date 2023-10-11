@@ -64,3 +64,7 @@ void GUI::DrawButton(NVGcontext* vg, const char* text, float x, float y, float w
 	nvgFillColor(vg, nvgRGBA(255,255,255,160));
 	nvgText(vg, x+w*0.5f-tw*0.5f+iw*0.25f,y+h*0.5f,text, NULL);
 }
+
+void GUI::DrawExplosion(NVGcontext* vg, float x, float y, float w, float h) {
+
+}

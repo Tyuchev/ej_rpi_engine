@@ -20,6 +20,7 @@ public:
 
 private:
 
+    void PlayerDeathFix();
     std::vector<Render::PointLightId> lights;
     Game::PodRacer* player;
     Render::ModelId sidesModelId;

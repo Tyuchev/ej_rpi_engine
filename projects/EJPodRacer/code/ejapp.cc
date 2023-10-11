@@ -133,7 +133,31 @@ EJApp::Run()
 void
 EJApp::DoDeath()
 {
-    gameState = GameState::PreDeath;
+    this->SetGameState(GameState::PreDeath);
+}
+
+void PrintState(GameState state)
+{
+    switch(state)
+    {
+    case GameState::Start:
+        printf("Start\n");
+        return;
+	case GameState::Game:
+        printf("Game\n");
+        return;
+    case GameState::NewHigh:
+        printf("NewHigh\n");
+        return;
+	case GameState::PreDeath:
+        printf("PreDeath\n");
+        return;
+    case GameState::Death:
+        printf("Death\n");
+        return;
+    default:
+        printf("Unknown state: %i\n", (int)state);
+    }
 }
 
 void
@@ -159,21 +183,9 @@ EJApp::RunGame()
     }
 
     // Check state.
-    if (!debugMode) {
-        switch (gameState)
-        {
-        case GameState::Start:
-        case GameState::PreDeath:
-            racer->controlScheme = ControlScheme::NoControls;
-            break;
-        case GameState::Game:
-            racer->controlScheme = ControlScheme::NewControls;
-            break;
-        }
-    }
-    else {
-        racer->controlScheme = ControlScheme::DebugControls;
-    }
+    UpdateState();
+    //PrintState(gameState);
+    //printf("%f\n", stateTime);
 
     if (kbd->pressed[Input::Key::Code::R])
     {
@@ -231,8 +243,9 @@ EJApp::RunGame()
 void
 EJApp::StartGame()
 {
-    gameState = GameState::Start;
+    this->SetGameState(GameState::Start);
     racer = std::make_unique<PodRacer>(PodRacer());
+    racer->AddOnDeathCallback([this]{this->DoDeath();});
     racer->Init();
     racer->model = LoadModel("assets/system/podracer.glb");
     racer->position = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -280,21 +293,62 @@ EJApp::RenderUI()
 	}
 }
 
+void
+EJApp::SetGameState(GameState state)
+{
+    static GameState prevState = this->gameState;
+    if (prevState != state && state != this->gameState) {
+        stateTime = 0.0f;
+        this->gameState = state;
+    }
+}
+
+void
+EJApp::UpdateState()
+{
+    if (!debugMode) {
+        switch (gameState)
+        {
+        case GameState::Start:
+            if (stateTime >= 2.0f)
+            {
+                SetGameState(GameState::Game);
+            }
+            racer->controlScheme = ControlScheme::NoControls;
+            break;
+        case GameState::PreDeath:
+            if (stateTime >= 3.0f)
+            {
+                SetGameState(GameState::Death);
+            }
+            racer->controlScheme = ControlScheme::NoControls;
+            break;
+        case GameState::Game:
+            racer->controlScheme = ControlScheme::NewControls;
+            break;
+        case GameState::Death:
+            if (stateTime > 3.0f)
+            {
+                RestartGame();
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        racer->controlScheme = ControlScheme::DebugControls;
+    }
+    
+    stateTime += dt;
+}
+
 //------------------------------------------------------------------------------
 /**
 */
 void
 EJApp::RenderNanoVG(NVGcontext* vg)
 {
-    static GameState prevState = this->gameState;
-    static float stateTime = 0.0f;
-    if (prevState != gameState) {
-        stateTime = 0.0f;
-        prevState = gameState;
-    }
-    else {
-        stateTime += dt;
-    }
     nvgSave(vg);
 
     NVGcolor inMenuColor = nvgRGBA(255, 255, 255, 255);
@@ -316,12 +370,8 @@ EJApp::RenderNanoVG(NVGcontext* vg)
         else if (stateTime < 2.0f) {
             startText = "Set...";
         }
-        else {
-            gameState = GameState::Game;
-        }
         GUI::DrawLabel(vg, startText.c_str(), 35.0, width / 2.0 - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inGameColor);
     }
-
     else if (gameState == GameState::Game) {
         if (stateTime < 1.0f) {
             GUI::DrawLabel(vg, "Go!", 35.0, width / 2.0 - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inGameColor);
@@ -334,7 +384,6 @@ EJApp::RenderNanoVG(NVGcontext* vg)
         hiScoreText += std::to_string(scoreSystem.previousHigh);
         GUI::DrawLabel(vg, hiScoreText.c_str(), 16.0f, width - 200.0f, 30.0f, 200.0f, 30.0f, inGameColor);
     }
-
     else if (gameState == GameState::PreDeath)
     {
         if (stateTime < 3.0f)
@@ -344,22 +393,11 @@ EJApp::RenderNanoVG(NVGcontext* vg)
             const float y = height / 2.0f - size / 2.0 - 50.0f;
             GUI::DrawExplosion(vg, x, y, size, size, dt, 3.0);
         }
-        else
-        {
-            gameState = GameState::Death;
-        }
     }
-
     else if (gameState == GameState::Death) {
         GUI::DrawFilledBox(vg, 0.0f, 0.0f, (float)width, (float)height, backgroundColor);
         GUI::DrawLabel(vg, "Game Over", 35.0f, width / 2.0f - 100.0f, height / 2.0f - 50.0f, 100.0f, 50.0f, inMenuColor);
-        if (stateTime > 3.0f)
-        {
-            RestartGame();
-        }
     }
-
-
 
     nvgRestore(vg);
 }

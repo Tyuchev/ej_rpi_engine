@@ -41,6 +41,7 @@ public:
 	void RunGame();
 	void EndGame();
 	void RestartGame();
+	void SetGameState(GameState state);
 	void DoDeath();
 private:
 
@@ -48,12 +49,12 @@ private:
 	void RenderUI();
 	/// render some nanovg stuff
 	void RenderNanoVG(NVGcontext* vg);
+	void UpdateState();
 
 	Display::Window* window;
-	GameState gameState = GameState::Start;
+	GameState gameState;
+	float stateTime = 0.0f;
 	std::unique_ptr<PodRacer> racer;
-	//PodRacer* racer;
 	std::unique_ptr<Mapgen> mapgen;
-	//Mapgen* mapgen;
 };
 } // namespace Game

@@ -46,6 +46,7 @@ public:
 
     float currentSpeed = 0.0f;
 
+
     float rotationZ = 0;
     float rotXSmooth = 0;
     float rotYSmooth = 0;
@@ -59,11 +60,15 @@ public:
 
     void CheckCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions);
     void ResolveCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions) const;
+    void Kill();
+    void AddOnDeathCallback(std::function<void(void)> callback);
 
 private:
     void ApplyNewControls(const float& dt);
     void ApplyDebugControls(const float& dt);
     void ApplyNoControls(const float& dt);
+
+    std::vector<std::function<void(void)>> onDeathCallbacks;
     
 
     // Hard-coded collision points from the Engine's test space simulation

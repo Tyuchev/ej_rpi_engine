@@ -12,7 +12,7 @@
 
 // Should be used for fog shader later as well;
 constexpr float RENDER_DISTANCE = 100000.0f;
-constexpr float CHUNK_REMOVAL_DISTANCE = 200.0f;
+constexpr float CHUNK_REMOVAL_DISTANCE = 50.0f;
 constexpr float CHUNK_ADD_DISTANCE = 100.0f;
 
 // Debug flags.
@@ -81,6 +81,16 @@ void PlaceNextChunk() {
 }
 
 
+void Mapgen::PlayerDeathFix() {
+    static bool once = false;
+    if (!once)
+    {
+        player->Kill();
+        once = true;
+    }
+}
+
+
 // Called every frame
 void Mapgen::Generate() {
     if (player == nullptr)
@@ -96,13 +106,27 @@ void Mapgen::Generate() {
 
     // Check if we should generate new chunks.
     if (!MANUAL_CHUNK_DEBUG) {
-        if (glm::distance(builder.GetLastChunk()->GetPos(), player->position) <= CHUNK_ADD_DISTANCE) {
+        const MapChunk* lastChunk = builder.GetLastChunk();
+        const MapChunk* firstChunk = builder.GetFirstChunk();
+        if (glm::distance(lastChunk->GetPos(), player->position) <= CHUNK_ADD_DISTANCE) {
             PlaceNextChunk();
         }
         // Check if we should delete past chunks.
-        if (glm::distance(builder.GetFirstChunk()->GetPos(), player->position) >= CHUNK_REMOVAL_DISTANCE) {
+        if (glm::distance(firstChunk->GetPos(), player->position) >= CHUNK_REMOVAL_DISTANCE) {
             builder.RemoveFirst();
         }
+
+        // Check collisions, yes it's hacky to use first chunk, do it differently.
+        //if (abs(player->position.x) > ROAD_WIDTH * TILE_SIZE / 2.0f)
+        //{
+            //PlayerDeathFix();
+        //}
+        //for (auto child : firstChunk->children) {
+            //if (glm::distance(player->position, child->GetWorldPos()) < TILE_SIZE / 2.0f)
+            //{
+                //PlayerDeathFix();
+            //}
+        //}
     }
 }
 

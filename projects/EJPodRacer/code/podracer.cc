@@ -366,6 +366,21 @@ PodRacer::Update(float dt)
 }
 
 void
+PodRacer::AddOnDeathCallback(std::function<void(void)> callback)
+{
+    onDeathCallbacks.push_back(callback);
+}
+
+void
+PodRacer::Kill()
+{
+    for (auto callback : onDeathCallbacks)
+    {
+        callback();
+    }
+}
+
+void
 PodRacer::CheckCollisions(std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> &collisions)
 {
     glm::mat4 rotation = (glm::mat4)orientation;

@@ -25,8 +25,9 @@ enum class ControlScheme {
     DebugControls
 };
 
-struct PodRacer
+class PodRacer
 {
+public:
     PodRacer();
     void Init();
     

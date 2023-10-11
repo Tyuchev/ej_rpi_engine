@@ -39,8 +39,6 @@ bool debugMode = false;
 Input::Keyboard* kbd;
 // Collision Tracker
 std::vector<std::tuple<Physics::ColliderId, Physics::RaycastPayload>> collisionList;
-PodRacer racer;
-Mapgen mapgen;
 
 //------------------------------------------------------------------------------
 /**
@@ -116,7 +114,8 @@ EJApp::Run()
     TextureResourceId skyboxId = TextureResource::LoadCubemap("skybox", skybox, true);
     RenderDevice::SetSkybox(skyboxId);
     RenderDevice::SetRoadScale(TILE_SCALE);
-    
+    kbd = Input::GetDefaultKeyboard();
+
     StartGame();
 
     std::clock_t c_start = std::clock();
@@ -134,8 +133,12 @@ EJApp::Run()
 void
 EJApp::RunGame()
 {
+    if (racer == nullptr || mapgen == nullptr)
+    {
+        return;
+    }
     fps = 1 / dt;
-    Render::RenderDevice::SetPlayerPos(racer.position);
+    Render::RenderDevice::SetPlayerPos(racer->position);
     auto timeStart = std::chrono::steady_clock::now();
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -154,20 +157,21 @@ EJApp::RunGame()
         switch (gameState)
         {
         case GameState::Start:
-            racer.controlScheme = ControlScheme::NoControls;
+            racer->controlScheme = ControlScheme::NoControls;
             break;
         case GameState::Game:
-            racer.controlScheme = ControlScheme::NewControls;
+            racer->controlScheme = ControlScheme::NewControls;
             break;
         }
     }
     else {
-        racer.controlScheme = ControlScheme::DebugControls;
+        racer->controlScheme = ControlScheme::DebugControls;
     }
 
     if (kbd->pressed[Input::Key::Code::R])
     {
-        ShaderResource::ReloadShaders();
+        //ShaderResource::ReloadShaders();
+        this->RestartGame();
     }
 
     // Road turn test.
@@ -192,16 +196,16 @@ EJApp::RunGame()
         }
     }
 
-    racer.Update(dt);
-    racer.CheckCollisions(collisionList);
+    racer->Update(dt);
+    racer->CheckCollisions(collisionList);
 
     // Store all drawcalls in the render device
 
-    RenderDevice::Draw(racer.model, racer.transform, racer.position, true);
+    RenderDevice::Draw(racer->model, racer->transform, racer->position, true);
 
 
-    mapgen.Generate();
-    mapgen.Draw();
+    mapgen->Generate();
+    mapgen->Draw();
 
     // Execute the entire rendering pipeline
     RenderDevice::Render(this->window, dt);
@@ -217,18 +221,29 @@ EJApp::RunGame()
 void
 EJApp::StartGame()
 {
-    kbd = Input::GetDefaultKeyboard();
-    racer.Init();
-    racer.model = LoadModel("assets/system/podracer.glb");
-    racer.position = glm::vec3(0.0f, 1.0f, 0.0f);
-    mapgen.Init();
-    mapgen.SetPlayer(&racer);
+    gameState = GameState::Start;
+    racer = std::make_unique<PodRacer>(PodRacer());
+    racer->Init();
+    racer->model = LoadModel("assets/system/podracer.glb");
+    racer->position = glm::vec3(0.0f, 1.0f, 0.0f);
+    mapgen = std::make_unique<Mapgen>(Mapgen());
+    mapgen->Init();
+    mapgen->SetPlayer(racer.get());
 }
 
 void
 EJApp::EndGame()
 {
+    racer.reset();
+    mapgen.reset();
     scoreSystem.Save();
+}
+
+void
+EJApp::RestartGame()
+{
+    EndGame();
+    StartGame();
 }
 
 //------------------------------------------------------------------------------

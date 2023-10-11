@@ -8,6 +8,8 @@
 //------------------------------------------------------------------------------
 #include "core/app.h"
 #include "render/window.h"
+#include "podracer.h"
+#include "mapgen.h"
 
 namespace Game
 {
@@ -37,6 +39,7 @@ public:
 	void StartGame();
 	void RunGame();
 	void EndGame();
+	void RestartGame();
 private:
 
 	/// show some ui things
@@ -46,5 +49,9 @@ private:
 
 	Display::Window* window;
 	GameState gameState = GameState::Start;
+	std::unique_ptr<PodRacer> racer;
+	//PodRacer* racer;
+	std::unique_ptr<Mapgen> mapgen;
+	//Mapgen* mapgen;
 };
 } // namespace Game

@@ -128,6 +128,8 @@ void Mapgen::Draw() {
         return;
     const std::vector<MapChunk*> chunks = builder.GetChunks();
     for (MapChunk* chunk : chunks) {
+        if (chunk == nullptr)
+            continue;
         if (MANUAL_CHUNK_DEBUG || glm::distance(chunk->GetPos(), player->position) < RENDER_DISTANCE) {
             chunk->Draw();
         }

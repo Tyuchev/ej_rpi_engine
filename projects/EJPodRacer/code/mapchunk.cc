@@ -151,10 +151,12 @@ bool MapChunkBuilder::CheckCollision(const glm::vec3& position) {
         return true;
     }
     for (auto chunk : chunks) {
-        for (auto obstacle : chunk->children) {
-            if (glm::distance(obstacle->GetWorldPos() + CENTER_OFFSET, position) < TILE_SIZE / 2.0f)
-            {
-                return true;
+        if (chunk != nullptr) {
+            for (auto obstacle : chunk->children) {
+                if (glm::distance(obstacle->GetWorldPos() + CENTER_OFFSET, position) < TILE_SIZE / 2.0f)
+                {
+                    return true;
+                }
             }
         }
     }

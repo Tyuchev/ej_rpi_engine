@@ -44,26 +44,27 @@ PodRacer::ApplyNewControls(const float& dt)
     // Forward movement
     // movement seems to be smoothed by using GLM::mix
     
-    if(kbd->held[Key::S])
-    {
+    //if(kbd->held[Key::S])
+    //{
 
-        this->currentSpeed = mix(this->currentSpeed, -1.0f, std::min(1.0f, dt * acceleration));
+        //this->currentSpeed = mix(this->currentSpeed, -1.0f, std::min(1.0f, dt * acceleration));
 
-    }
+    //}
     // braking takes precedence - as above
-    else if (kbd->held[Key::W])
-    {
+    this->currentSpeed = 4.0f;
+    //else if (kbd->held[Key::W])
+    //{
 
-        this->currentSpeed = mix(this->currentSpeed, this->normalSpeed, std::min(1.0f, dt * acceleration));
+        //this->currentSpeed = mix(this->currentSpeed, this->normalSpeed, std::min(1.0f, dt * acceleration));
 
-        // An old "BOOST" mechanic
-        // if (kbd->held[Key::Shift])
-        //     this->currentSpeed = mix(this->currentSpeed, this->maxSpeed, std::min(1.0f, dt * 30.0f));
-        // else
-        //     this->currentSpeed = mix(this->currentSpeed, this->normalSpeed, std::min(1.0f, dt * 90.0f));
+        //// An old "BOOST" mechanic
+        //// if (kbd->held[Key::Shift])
+        ////     this->currentSpeed = mix(this->currentSpeed, this->maxSpeed, std::min(1.0f, dt * 30.0f));
+        //// else
+        ////     this->currentSpeed = mix(this->currentSpeed, this->normalSpeed, std::min(1.0f, dt * 90.0f));
 
-    }
-    else
+    //}
+    //else
     {
         if(this->currentSpeed < this->normalSpeed * 0.1)
         {

@@ -222,7 +222,7 @@ EJApp::RunGame()
 
     if (gameState != GameState::PreDeath)
     {
-        RenderDevice::Draw(racer->model, racer->transform, racer->position, true);
+        RenderDevice::Draw(racer->model, racer->transform * glm::scale(glm::vec3(1.2f)), racer->position, true);
     }
 
 

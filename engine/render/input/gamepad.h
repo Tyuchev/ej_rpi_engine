@@ -12,7 +12,17 @@ namespace Input
 
 struct Gamepad
 {
-    // TODO
+    // Not yet implemented.
+    enum Code
+    {
+        NumKeyCodes,
+        InvalidKey
+    };
+
+    void Update();
+    static Gamepad::Code FromGLFW(int32 key);
+    int id;
+    glm::vec2 leftStickValues;
 };
 
 } // namespace Input

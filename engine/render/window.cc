@@ -106,6 +106,12 @@ Window::StaticKeyPressCallback(GLFWwindow* win, int32 key, int32 scancode, int32
 	Input::InputHandler::HandleKeyEvent(key, scancode, action, mods);
 }
 
+void
+Window::StaticGamepadFunction(int32 jid, int32 event)
+{
+	Input::InputHandler::HandleJoystickEvent(jid, event);
+}
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -315,6 +321,7 @@ Window::Open()
 
 	glfwSetWindowUserPointer(this->window, this);
 	glfwSetKeyCallback(this->window, Window::StaticKeyPressCallback);
+	glfwSetJoystickCallback(Window::StaticGamepadFunction);
 	glfwSetMouseButtonCallback(this->window, Window::StaticMousePressCallback);
 	glfwSetCursorPosCallback(this->window, Window::StaticMouseMoveCallback);
 	glfwSetCursorEnterCallback(this->window, Window::StaticMouseEnterLeaveCallback);

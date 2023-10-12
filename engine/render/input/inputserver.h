@@ -28,6 +28,7 @@ public:
     static void HandleKeyEvent(int32 key, int32 scancode, int32 action, int32 mods);
     static void HandleMousePressEvent(int32 button, int32 pressed, int32);
     static void HandleMouseMoveEvent(double x, double y);
+    static void HandleJoystickEvent(int32 jid, int32 event);
 };
 
 Keyboard* GetDefaultKeyboard();

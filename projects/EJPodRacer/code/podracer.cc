@@ -16,6 +16,7 @@ using namespace Render;
 
 Mouse* mouse;
 Keyboard* kbd;
+Gamepad* gamepad;
 Camera* cam;
 bool wasPodInit = false;
 
@@ -34,6 +35,14 @@ PodRacer::Init()
     kbd = Input::GetDefaultKeyboard();
     cam = CameraManager::GetCamera(CAMERA_MAIN);
     wasPodInit = true;
+    for (int i = 0; i < 16; i++)
+    {
+        if (glfwJoystickPresent(i))
+        {
+            gamepad = Input::GetGamepad(i);
+            printf("Found gamepad to use!\n");
+        }
+    }
 }
 
 void
@@ -88,6 +97,10 @@ PodRacer::ApplyNewControls(const float& dt)
     else if (kbd->held[Key::D])
     {
         bankingDirection = 1.0f;
+    }
+    else if (gamepad != nullptr)
+    {
+        bankingDirection = gamepad->leftStickValues.x;
     }
     else
     {

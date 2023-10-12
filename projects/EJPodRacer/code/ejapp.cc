@@ -202,7 +202,7 @@ EJApp::RunGame()
         if (t >= (2 * 3.14159)/TURN_SPEED) {
             t = 0.0f;
         }
-        Render::RenderDevice::SetRoadTurnFactor(sin(t * 0.05f));
+        Render::RenderDevice::SetRoadTurnFactor(sin(t * TURN_SPEED));
     }
 
     // Temp score system.

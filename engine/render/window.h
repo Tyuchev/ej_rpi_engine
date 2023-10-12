@@ -78,6 +78,7 @@ private:
 	static void StaticMouseScrollCallback(GLFWwindow* win, float64 x, float64 y);
     /// static resize window callback
     static void StaticWindowResizeCallback(GLFWwindow* win, int32 x, int32 y);
+	static void StaticGamepadFunction(int32 jid, int32 event);
 	
 	static void StaticCloseCallback(GLFWwindow* window);
 	static void StaticFocusCallback(GLFWwindow* window, int focus);

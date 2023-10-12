@@ -26,6 +26,19 @@ InputHandler::Create()
 {
 	if (hid == nullptr)
 		hid = new HIDState();
+
+	hid->gamepads = std::vector<Gamepad*>(16);
+	for (int i = 0; i < 16; i++)
+	{
+		Gamepad* gamepad = nullptr;
+		if (glfwJoystickPresent(i))
+		{
+			printf("[Input] Found controller id: %i\n", i);
+			gamepad = new Gamepad();
+			gamepad->id = i;
+		}
+		hid->gamepads[i] = gamepad;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -54,6 +67,14 @@ InputHandler::BeginFrame()
 
 	hid->mouse.delta = glm::vec2(0);
 	hid->mouse.previousPosition = hid->mouse.position;
+	for (int i = 0; i < 16; i++)
+	{
+		Gamepad* gamepad = hid->gamepads[i];
+		if (gamepad != nullptr)
+		{
+			gamepad->Update();
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -161,8 +182,41 @@ Gamepad*
 GetGamepad(int id)
 {
 	assert(hid != nullptr);
-	assert(id > 0 && id < hid->gamepads.size());
+	assert(id >= 0 && id < hid->gamepads.size());
 	return hid->gamepads[id];
+}
+
+void
+AddGamepad(int id)
+{
+	assert(hid != nullptr);
+	assert(id >= 0 && id < hid->gamepads.size());
+	Gamepad* gamepad = new Gamepad();
+	gamepad->id = id;
+	hid->gamepads[id] = gamepad;
+}
+
+void
+RemoveGamepad(int id)
+{
+	assert(hid != nullptr);
+	assert(id >= 0 && id < hid->gamepads.size());
+	delete hid->gamepads[id];
+}
+
+void
+InputHandler::HandleJoystickEvent(int32 jid, int32 event)
+{
+	if (event == GLFW_CONNECTED)
+	{
+		AddGamepad(jid);
+		printf("[Input] Gamepad added!\n");
+	}
+	else if (event == GLFW_DISCONNECTED)
+	{
+		RemoveGamepad(jid);
+		printf("[Input] Gamepad removed!\n");
+	}
 }
 
 } // namespace Input

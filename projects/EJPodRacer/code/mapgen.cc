@@ -82,11 +82,10 @@ void PlaceNextChunk() {
 
 
 void Mapgen::PlayerDeathFix() {
-    static bool once = false;
-    if (!once)
+    if (!hasKilledPlayer)
     {
         player->Kill();
-        once = true;
+        hasKilledPlayer = true;
     }
 }
 
@@ -116,17 +115,10 @@ void Mapgen::Generate() {
             builder.RemoveFirst();
         }
 
-        // Check collisions, yes it's hacky to use first chunk, do it differently.
-        //if (abs(player->position.x) > ROAD_WIDTH * TILE_SIZE / 2.0f)
-        //{
-            //PlayerDeathFix();
-        //}
-        //for (auto child : firstChunk->children) {
-            //if (glm::distance(player->position, child->GetWorldPos()) < TILE_SIZE / 2.0f)
-            //{
-                //PlayerDeathFix();
-            //}
-        //}
+
+        if (builder.CheckCollision(player->position)) {
+            PlayerDeathFix();
+        }
     }
 }
 

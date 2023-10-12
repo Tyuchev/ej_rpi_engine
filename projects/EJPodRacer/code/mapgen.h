@@ -21,6 +21,7 @@ public:
 private:
 
     void PlayerDeathFix();
+    bool hasKilledPlayer = false;
     std::vector<Render::PointLightId> lights;
     Game::PodRacer* player;
     Render::ModelId sidesModelId;

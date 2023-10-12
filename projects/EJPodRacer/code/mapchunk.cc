@@ -145,7 +145,6 @@ bool MapChunkBuilder::CheckCollision(const glm::vec3& position) {
     //const glm::vec3 CENTER_OFFSET = glm::vec3(-TILE_SIZE / 2.0f, 0.0, -TILE_SIZE / 2.0f);
     const glm::vec3 CENTER_OFFSET = glm::vec3(0.0f);
     float absX = glm::abs(position.x);
-    printf("%f\n", abs(absX));
     // Temporary fix.
     if (absX > 18.0f) {
         return true;

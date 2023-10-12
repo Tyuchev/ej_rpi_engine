@@ -313,8 +313,6 @@ PodRacer::ApplyNoControls(const float& dt)
         }
     }
 
-
-    
     // Motion Resolution
 
     vec3 desiredVelocity = vec3(0, 0, this->currentSpeed);
@@ -361,7 +359,6 @@ PodRacer::Update(float dt)
             break;
         default:
             break;
-
     }
 }
 

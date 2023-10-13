@@ -124,9 +124,25 @@ EJApp::Run()
     // game loop
     while (this->window->IsOpen())
 	{
+        auto timeStart = std::chrono::steady_clock::now();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        
+        this->window->Update();
         this->RunGame();
         if (kbd->pressed[Input::Key::Code::Escape])
             this->Exit();
+
+        // Execute the entire rendering pipeline
+        RenderDevice::Render(this->window, dt);
+
+        // transfer new frame to window
+        this->window->SwapBuffers();
+
+        auto timeEnd = std::chrono::steady_clock::now();
+        dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
 	}
 }
 
@@ -169,13 +185,6 @@ EJApp::RunGame()
     }
     fps = 1 / dt;
     Render::RenderDevice::SetPlayerPos(racer->position);
-    auto timeStart = std::chrono::steady_clock::now();
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    
-    this->window->Update();
 
     if (kbd->pressed[Input::Key::Code::Tab])
     {
@@ -231,14 +240,6 @@ EJApp::RunGame()
     mapgen->Generate();
     mapgen->Draw();
 
-    // Execute the entire rendering pipeline
-    RenderDevice::Render(this->window, dt);
-
-    // transfer new frame to window
-    this->window->SwapBuffers();
-
-    auto timeEnd = std::chrono::steady_clock::now();
-    dt = std::min(0.04, std::chrono::duration<double>(timeEnd - timeStart).count());
 
 }
 

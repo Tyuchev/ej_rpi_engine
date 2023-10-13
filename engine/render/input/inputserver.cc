@@ -5,6 +5,7 @@
 #include "config.h"
 #include "inputserver.h"
 #include "GLFW/glfw3.h"
+#include <cstdio>
 
 namespace Input
 {

@@ -86,6 +86,9 @@ void GameObject::Render(glm::mat4 ctm) const {
         Render::RenderDevice::Draw(model, ctm * scalingMat, GetWorldPos(), isRoad);
     }
     for(GameObject* child : children) {
-        child->Render(ctm);
+        if (child != nullptr)
+        {
+            child->Render(ctm);
+        }
     }
 }

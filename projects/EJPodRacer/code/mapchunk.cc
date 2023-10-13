@@ -103,6 +103,8 @@ GameObject* GetObstacleTile() {
 }
 
 void AddObstaclesToChunk(MapChunk* chunk) {
+    if (chunk == nullptr)
+        return;
     const int RIGHT = (CHUNK_WIDTH - ROAD_WIDTH) / 2 + 1;
     const int LEFT = CHUNK_WIDTH - RIGHT + 1;
     const glm::vec3 CENTER_OFFSET = glm::vec3(
@@ -175,7 +177,13 @@ const MapChunk* MapChunkBuilder::GetFirstChunk() const {
 }
 
 void MapChunkBuilder::RemoveFirst() {
-    chunks.erase(chunks.begin());
-    delete firstChunk;
-    firstChunk = chunks[0];
+    if (chunks.size() >= 1) {
+        chunks.erase(chunks.begin());
+        delete firstChunk;
+        firstChunk = chunks[0];
+    }
+    else {
+        delete firstChunk;
+        firstChunk = nullptr;
+    }
 }

@@ -246,6 +246,7 @@ void
 EJApp::StartGame()
 {
     this->SetGameState(GameState::Start);
+    RenderDevice::SetRoadTurnFactor(0.0f);
     racer = std::make_unique<PodRacer>(PodRacer());
     racer->AddOnDeathCallback([this]{this->DoDeath();});
     racer->Init();

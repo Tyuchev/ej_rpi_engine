@@ -21,7 +21,7 @@ constexpr bool ONLY_STRAIGHT_CHUNKS = true;
 
 MapChunk* debugChunk = nullptr;
 
-MapChunkBuilder builder = MapChunkBuilder();
+MapChunkBuilder builder;
 
 bool wasMapInit = false;
 
@@ -31,6 +31,7 @@ Mapgen::Mapgen() {
 
 // Don't call in constructor.
 void Mapgen::Init() {
+    builder = MapChunkBuilder();
     this->sidesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rail.glb");
     // TODO: Replace by function returning random obstacle model.
     this->obstaclesModelId = Render::LoadModel("assets/pod_racer/Models/GLTF format/rock_largeA.glb");
@@ -107,11 +108,11 @@ void Mapgen::Generate() {
     if (!MANUAL_CHUNK_DEBUG) {
         const MapChunk* lastChunk = builder.GetLastChunk();
         const MapChunk* firstChunk = builder.GetFirstChunk();
-        if (glm::distance(lastChunk->GetPos(), player->position) <= CHUNK_ADD_DISTANCE) {
+        if (lastChunk != nullptr && glm::distance(lastChunk->GetPos(), player->position) <= CHUNK_ADD_DISTANCE) {
             PlaceNextChunk();
         }
         // Check if we should delete past chunks.
-        if (glm::distance(firstChunk->GetPos(), player->position) >= CHUNK_REMOVAL_DISTANCE) {
+        if (firstChunk != nullptr && glm::distance(firstChunk->GetPos(), player->position) >= CHUNK_REMOVAL_DISTANCE) {
             builder.RemoveFirst();
         }
 

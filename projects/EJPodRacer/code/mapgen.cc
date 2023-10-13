@@ -11,7 +11,7 @@
 
 
 // Should be used for fog shader later as well;
-constexpr float RENDER_DISTANCE = 100000.0f;
+constexpr float RENDER_DISTANCE = 200.0f;
 constexpr float CHUNK_REMOVAL_DISTANCE = 50.0f;
 constexpr float CHUNK_ADD_DISTANCE = 100.0f;
 

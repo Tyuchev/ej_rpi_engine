@@ -187,7 +187,7 @@ bool ParseData(const GameData::ChunkData* data, MapChunk* outChunk) {
 }
 
 MapChunk* MapParser::FromData(const char* binFilePath) {
-    char* inputBuffer = new char[4096]('\0');
+    char* inputBuffer = new char[4096]{'\0'};
     std::ifstream fin(binFilePath, std::ios::in | std::ios::binary);
     int charCount = 0;
     while (fin) {

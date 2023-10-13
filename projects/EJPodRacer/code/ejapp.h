@@ -10,6 +10,7 @@
 #include "render/window.h"
 #include "podracer.h"
 #include "mapgen.h"
+#include <memory>
 
 namespace Game
 {

@@ -2,10 +2,11 @@
 
 class HighscoreSystem {
 public:
-    HighscoreSystem(const char* filePath);
+    HighscoreSystem();
     int currentScore;
     int previousHigh;
 
+    void Load(const char* filePath);
     // Write value of current score to filePath.
     void Write();
     bool IsHigh();

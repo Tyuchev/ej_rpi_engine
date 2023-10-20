@@ -33,7 +33,7 @@ namespace Game
 
 float fps;
 double dt;
-HighscoreSystem scoreSystem = HighscoreSystem("score.txt");
+HighscoreSystem scoreSystem;
 // Set in game with tab.
 bool debugMode = false;
 Input::Keyboard* kbd;
@@ -247,6 +247,7 @@ void
 EJApp::StartGame()
 {
     this->SetGameState(GameState::Start);
+    scoreSystem.Load("score.txt");
     RenderDevice::SetRoadTurnFactor(0.0f);
     racer = std::make_unique<PodRacer>(PodRacer());
     racer->AddOnDeathCallback([this]{this->DoDeath();});

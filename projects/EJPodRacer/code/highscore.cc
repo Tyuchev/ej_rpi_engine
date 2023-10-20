@@ -5,7 +5,14 @@
 #include <string>
 //#include <ios>
 
-HighscoreSystem::HighscoreSystem(const char* filePath) : filePath(filePath) {
+HighscoreSystem::HighscoreSystem() {
+    filePath = nullptr;
+    previousHigh = 0;
+    currentScore = 0;
+}
+
+void HighscoreSystem::Load(const char* filePath) {
+    this->filePath = filePath;
     previousHigh = Read();
     currentScore = 0;
 }

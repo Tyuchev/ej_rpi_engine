@@ -207,6 +207,7 @@ EJApp::RunGame()
     // Road turn test.
     if (gameState == GameState::Game && stateTime > 5.0f)
     {
+        // TODO: Fix bug where road snaps after new game.
         static float t = 0.0f;
         const float TURN_SPEED = 0.05f;
         t += dt;
@@ -239,10 +240,9 @@ EJApp::RunGame()
     }
 
 
+    // TODO: Test performance on pi with these commented.
     mapgen->Generate();
     mapgen->Draw();
-
-
 }
 
 void

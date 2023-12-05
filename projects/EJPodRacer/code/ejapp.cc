@@ -24,6 +24,7 @@
 #include "gameobject.h"
 #include "guihelper.h"
 #include "highscore.h"
+#include <queue>
 
 using namespace Display;
 using namespace Render;
@@ -31,7 +32,12 @@ using namespace Render;
 namespace Game
 {
 
+constexpr int AVG_FPS_SAMPLES = 1000;
 float fps;
+float minFps = 50000.0f;
+float maxFps = 0.0f;
+std::queue<float> fpsQueue;
+float avgFpsSum;
 double dt;
 HighscoreSystem scoreSystem;
 // Set in game with tab.
@@ -178,6 +184,12 @@ void PrintState(GameState state)
     }
 }
 
+float
+GetAvgFps()
+{
+    return avgFpsSum/fpsQueue.size();
+}
+
 void
 EJApp::RunGame()
 {
@@ -186,8 +198,23 @@ EJApp::RunGame()
         return;
     }
     fps = 1 / dt;
+    fpsQueue.push(fps);
+    avgFpsSum += fps;
+    maxFps = glm::max(maxFps, fps);
+    minFps = glm::min(minFps, fps);
+    if (fpsQueue.size() > AVG_FPS_SAMPLES)
+    {
+        float last = fpsQueue.front();
+        fpsQueue.pop();
+        avgFpsSum -= last;
+    }
     Render::RenderDevice::SetPlayerPos(racer->position);
 
+    if (kbd->pressed[Input::Key::Code::F])
+    {
+        minFps = 50000.0f;
+        maxFps = 0.0f;
+    }
     if (kbd->pressed[Input::Key::Code::Tab])
     {
         debugMode = !debugMode;
@@ -364,8 +391,7 @@ EJApp::RenderNanoVG(NVGcontext* vg)
     int height;
     window->GetSize(width, height);
 
-    std::string fpsText = "Fps: ";
-    fpsText += std::to_string(fps);
+    std::string fpsText = std::format("Fps: {}, Min: {}, Max: {}, Avg: {}", fps, minFps, maxFps, GetAvgFps());
     GUI::DrawLabel(vg, fpsText.c_str(), 16.0f, 10.0f, 10.0f, 100.0f, 30.0f, inGameColor);
 
     if (gameState == GameState::Start) {

@@ -288,6 +288,7 @@ EJApp::StartGame()
 void
 EJApp::EndGame()
 {
+    gameState = GameState::Start;
     racer.reset();
     mapgen.reset();
     scoreSystem.Save();

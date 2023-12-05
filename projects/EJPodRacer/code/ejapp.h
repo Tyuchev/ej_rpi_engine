@@ -53,7 +53,7 @@ private:
 	void UpdateState();
 
 	Display::Window* window;
-	GameState gameState;
+	GameState gameState = GameState::Start;
 	float stateTime = 0.0f;
 	std::unique_ptr<PodRacer> racer;
 	std::unique_ptr<Mapgen> mapgen;

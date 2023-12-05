@@ -23,8 +23,6 @@ SET(files_render_render
 	cameramanager.cc
 	debugrender.h
 	debugrender.cc
-	grid.h
-	grid.cc
 	physics.h
 	physics.cc
 	resourceid.h

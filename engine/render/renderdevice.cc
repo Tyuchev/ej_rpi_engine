@@ -11,7 +11,6 @@
 #include "lightserver.h"
 #include "cameramanager.h"
 #include "debugrender.h"
-#include "render/grid.h"
 #include "core/random.h"
 #include "core/cvar.h"
 #include "core/random.h"
@@ -310,8 +309,6 @@ RenderDevice::StaticForwardPass()
     auto programHandle = Render::ShaderResource::GetProgramHandle(staticGeometryProgram);
     glUseProgram(programHandle);
 
-
-    glUniform2i(glGetUniformLocation(programHandle, "NumTiles"), LightServer::GetWorkGroupsX(), LightServer::GetWorkGroupsY());
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
     
     // Shade cam location fix.

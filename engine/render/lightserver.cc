@@ -34,7 +34,6 @@ glm::vec3 globalLightColor;
 static ModelId icoSphereModel;
 
 
-constexpr GLuint maxTileProbes = 128;
 static GLuint workGroupsX = 0;
 static GLuint workGroupsY = 0;
 
@@ -87,11 +86,13 @@ void
 UpdateWorkGroups(uint resolutionWidth, uint resolutionHeight)
 {
 	// Define work group sizes in x and y direction based off screen size and tile size (in pixels)
-	const int TILE_SIZE = 32;
-	workGroupsX = (resolutionWidth + (resolutionWidth % TILE_SIZE)) / TILE_SIZE;
-	workGroupsY = (resolutionHeight + (resolutionHeight % TILE_SIZE)) / TILE_SIZE;
+	//const int TILE_SIZE = 32;
+	//workGroupsX = (resolutionWidth + (resolutionWidth % TILE_SIZE)) / TILE_SIZE;
+	//workGroupsY = (resolutionHeight + (resolutionHeight % TILE_SIZE)) / TILE_SIZE;
+	workGroupsX = 0;
+	workGroupsY = 0;
 
-	size_t numberOfTiles = workGroupsX * workGroupsY;
+	//size_t numberOfTiles = workGroupsX * workGroupsY;
 }
 
 //------------------------------------------------------------------------------

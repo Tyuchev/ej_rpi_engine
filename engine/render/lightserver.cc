@@ -107,7 +107,7 @@ void
 UpdateWorkGroups(uint resolutionWidth, uint resolutionHeight)
 {
 	// Define work group sizes in x and y direction based off screen size and tile size (in pixels)
-	const int TILE_SIZE = 8;
+	const int TILE_SIZE = 32;
 	workGroupsX = (resolutionWidth + (resolutionWidth % TILE_SIZE)) / TILE_SIZE;
 	workGroupsY = (resolutionHeight + (resolutionHeight % TILE_SIZE)) / TILE_SIZE;
 

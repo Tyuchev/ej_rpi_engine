@@ -40,7 +40,7 @@ static GLuint workGroupsY = 0;
 
 static GLuint globalShadowMap;
 static GLuint globalShadowFrameBuffer;
-const unsigned int shadowMapSize = 1024;
+const unsigned int shadowMapSize = 768;
 
 static Core::CVar* r_draw_light_spheres = nullptr;
 static Core::CVar* r_draw_light_sphere_id = nullptr;

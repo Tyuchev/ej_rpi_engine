@@ -21,11 +21,9 @@ namespace Render
 {
 
 Render::ShaderProgramId directionalLightProgram;
-Render::ShaderProgramId pointlightProgram;
 Render::ShaderProgramId staticGeometryProgram;
 Render::ShaderProgramId staticShadowProgram;
 Render::ShaderProgramId skyboxProgram;
-Render::ShaderProgramId lightCullingProgram;
 
 static GLuint fullscreenQuadVB;
 static GLuint fullscreenQuadVAO;
@@ -107,15 +105,6 @@ void RenderDevice::Init()
         auto vs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::VERTEXSHADER, "shd/vs_fullscreen.vs");
         auto fs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::FRAGMENTSHADER, "shd/fs_directional_light.fs");
         directionalLightProgram = Render::ShaderResource::CompileShaderProgram({ vs, fs });
-    }
-    {
-        auto vs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::VERTEXSHADER, "shd/vs_pointlight.vs");
-        auto fs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::FRAGMENTSHADER, "shd/fs_pointlight.fs");
-        pointlightProgram = Render::ShaderResource::CompileShaderProgram({ vs, fs });
-    }
-    {
-        auto cs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::COMPUTESHADER, "shd/cs_lightculling.comp");
-        lightCullingProgram = Render::ShaderResource::CompileShaderProgram({ cs });
     }
     GLint dims[4] = { 0 };
     glGetIntegerv(GL_VIEWPORT, dims);
@@ -307,40 +296,6 @@ RenderDevice::StaticGeometryPrepass()
 /**
 */
 void
-RenderDevice::LightCullingPass()
-{
-    GLuint lightCullingProgramHandle = ShaderResource::GetProgramHandle(lightCullingProgram);
-    glUseProgram(lightCullingProgramHandle);
-
-    Camera* const mainCamera = CameraManager::GetCamera(CAMERA_MAIN);
-    glUniformMatrix4fv(glGetUniformLocation(lightCullingProgramHandle, "View"), 1, false, &mainCamera->view[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(lightCullingProgramHandle, "Projection"), 1, false, &mainCamera->projection[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(lightCullingProgramHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
-
-    // Bind depth map texture to texture location 20 (which will not be used by any model texture)
-    glActiveTexture(GL_TEXTURE30);
-    glUniform1i(glGetUniformLocation(lightCullingProgramHandle, "DepthMap"), 30);
-    glBindTexture(GL_TEXTURE_2D, depthStencilBuffer);
-
-    glUniform1i(glGetUniformLocation(lightCullingProgramHandle, "NumPointLights"), LightServer::GetNumPointLights());
-    
-    // Bind shader storage buffer objects for the light and index buffers
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, LightServer::GetBuffer(LightServer::PointLightBuffer::POSITIONS));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, LightServer::GetBuffer(LightServer::PointLightBuffer::RADII));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, LightServer::GetBuffer(LightServer::PointLightBuffer::VISIBLE_INDICES));
-    
-    glUniform2i(glGetUniformLocation(lightCullingProgramHandle, "NumTiles"), LightServer::GetWorkGroupsX(), LightServer::GetWorkGroupsY());
-
-    glDispatchCompute(LightServer::GetWorkGroupsX(), LightServer::GetWorkGroupsY(), 1);
-
-    glActiveTexture(GL_TEXTURE30);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 RenderDevice::StaticForwardPass()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, Instance()->forwardFrameBuffer);
@@ -355,10 +310,6 @@ RenderDevice::StaticForwardPass()
     auto programHandle = Render::ShaderResource::GetProgramHandle(staticGeometryProgram);
     glUseProgram(programHandle);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, LightServer::GetBuffer(LightServer::PointLightBuffer::POSITIONS));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, LightServer::GetBuffer(LightServer::PointLightBuffer::COLORS));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, LightServer::GetBuffer(LightServer::PointLightBuffer::RADII));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, LightServer::GetBuffer(LightServer::PointLightBuffer::VISIBLE_INDICES));
 
     glUniform2i(glGetUniformLocation(programHandle, "NumTiles"), LightServer::GetWorkGroupsX(), LightServer::GetWorkGroupsY());
     glUniformMatrix4fv(glGetUniformLocation(programHandle, "ViewProjection"), 1, false, &mainCamera->viewProjection[0][0]);
@@ -568,9 +519,6 @@ RenderDevice::Render(Display::Window* wnd, float dt)
     Instance()->StaticGeometryPrepass();
     // end depth prepass renderpass
 
-    // begin light culling compute pass
-    Instance()->LightCullingPass();
-    // end lightculling compute pass
 
     // Begin sun shadowmap renderpass. this has a single subpass, with two subpass dependencies for layout transitions (shader-read -> depth-write, and back)
     Instance()->StaticShadowPass();
@@ -592,7 +540,6 @@ RenderDevice::Render(Display::Window* wnd, float dt)
 
     // begin debug drawing renderpass
     Debug::DispatchDebugDrawing();
-    LightServer::DebugDrawPointLights();
     // end debug drawing renderpass
 
     // begin finalization pass and present

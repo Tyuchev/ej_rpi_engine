@@ -74,7 +74,6 @@ private:
 
     std::vector<DrawCommand> drawCommands;
 
-    void LightCullingPass();
     void StaticShadowPass();
     void StaticGeometryPrepass();
     void StaticForwardPass();

@@ -25,7 +25,6 @@ SET(files_render_render
 	debugrender.cc
 	grid.h
 	grid.cc
-	lightsources.h
 	physics.h
 	physics.cc
 	resourceid.h

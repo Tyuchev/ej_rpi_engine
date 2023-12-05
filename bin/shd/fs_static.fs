@@ -31,15 +31,6 @@ layout(location=10) uniform vec4 CameraPosition;
 const float FOG_DENSITY = 0.015f;
 const vec4 FOG_COLOR = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-layout(std430, binding = 3) readonly buffer VisiblePointLightIndicesBuffer
-{
-	VisibleIndex data[];
-} visiblePointLightIndicesBuffer;
-
-layout(std430, binding = 4) readonly buffer VisibleProbesIndicesBuffer
-{
-	VisibleIndex data[];
-} visibleProbesIndicesBuffer;
 
 // V = view vector, N = surface normal, P = fragment point in world space
 vec3 CalculateGlobalLight(vec3 V, vec3 N, vec3 P, vec4 diffuseColor)
@@ -100,26 +91,6 @@ void main()
     vec3 light = AmbientLight;
 
     light += CalculateGlobalLight(V, N, modPos, baseColor);
-
-    int offset = index * MaxTileLights;
-    for (int i = 0; i < MaxTileLights && visiblePointLightIndicesBuffer.data[offset + i].index != -1; i++)
-	{
-        int lightIndex = visiblePointLightIndicesBuffer.data[offset + i].index;
-		vec3 LightPos = pointLightPositionsBuffer.data[lightIndex].xyz;
-        vec3 LightColor = pointLightColorsBuffer.data[lightIndex].rgb;
-        float LightRadius = pointLightRadiiBuffer.data[lightIndex];
-        
-        vec3 L = LightPos - modPos;
-
-        float lightDistance = length(L);
-        float x = lightDistance / LightRadius;
-        float attenuation = -0.05f + 1.05f/(1.0f+23.0f*x*x);
-        vec3 radiance = LightColor.rgb * max(attenuation, 0.0f);
-        
-        float diffuse = max(dot(normalize(L), N), 0.0f);
-        
-        light += diffuse * radiance;
-    }
 
     float fogAmount = getFog();
 

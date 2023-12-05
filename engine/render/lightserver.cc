@@ -25,28 +25,15 @@ struct VisibleIndex
 enum LightType
 {
 	NaN = 1,
-	Point = 2,
-	Spot = 4,
 	Directional = 8
-};
-
-struct PointLights
-{
-	std::vector<glm::vec4> positions;
-	std::vector<glm::vec4> colors;
-	std::vector<float> radii;
-	GLuint buffers[4];
 };
 
 glm::vec3 globalLightDirection;
 glm::vec3 globalLightColor;
 
 static ModelId icoSphereModel;
-static Util::IdPool<PointLightId> pointLightPool;
 
-static PointLights pointLights;
 
-constexpr GLuint maxTileLights = 512;
 constexpr GLuint maxTileProbes = 128;
 static GLuint workGroupsX = 0;
 static GLuint workGroupsY = 0;
@@ -67,13 +54,6 @@ Initialize()
 	globalLightDirection = glm::normalize(glm::vec3(-0.1f,-0.77735f,-0.27735f));
 	globalLightColor = glm::vec3(1.0f,0.8f,0.8f) * 3.0f;
 
-	icoSphereModel = LoadModel("assets/system/icosphere.glb");
-
-	r_draw_light_spheres = Core::CVarCreate(Core::CVarType::CVar_Int, "r_draw_light_spheres", "0");
-	r_draw_light_sphere_id = Core::CVarCreate(Core::CVarType::CVar_Int, "r_draw_light_sphere_id", "-1");
-
-	glGenBuffers((GLuint)PointLightBuffer::NUM_BUFFERS, pointLights.buffers);
-	
 	// setup shadow pass
 	glGenTextures(1, &globalShadowMap);
 	glBindTexture(GL_TEXTURE_2D, globalShadowMap);
@@ -112,11 +92,6 @@ UpdateWorkGroups(uint resolutionWidth, uint resolutionHeight)
 	workGroupsY = (resolutionHeight + (resolutionHeight % TILE_SIZE)) / TILE_SIZE;
 
 	size_t numberOfTiles = workGroupsX * workGroupsY;
-
-	// Bind visible Point light indices buffer
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLights.buffers[(GLuint)PointLightBuffer::VISIBLE_INDICES]);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, numberOfTiles * sizeof(VisibleIndex) * maxTileLights, 0, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -134,31 +109,11 @@ OnBeforeRender()
 	//	glm::vec3(0.0f, 1.0f, 0.0f));
 	//LightServer::globalLightDirection = shadowCamera->view[2];
 
-	static size_t prevNumPointLights = 0;
-	size_t numPointLights = pointLights.positions.size();
-
-	if (prevNumPointLights != numPointLights)
-	{
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLights.buffers[(GLuint)PointLightBuffer::POSITIONS]);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, numPointLights * sizeof(glm::vec4), pointLights.positions.data(), GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLights.buffers[(GLuint)PointLightBuffer::COLORS]);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, numPointLights * sizeof(glm::vec4), pointLights.colors.data(), GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLights.buffers[(GLuint)PointLightBuffer::RADII]);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, numPointLights * sizeof(float), pointLights.radii.data(), GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-		prevNumPointLights = numPointLights;
-	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-GLuint GetBuffer(PointLightBuffer buf)
-{
-	assert((int)buf < (int)PointLightBuffer::NUM_BUFFERS);
-	return pointLights.buffers[(GLuint)buf];
-}
 
 //------------------------------------------------------------------------------
 /**
@@ -187,162 +142,6 @@ Update(Render::ShaderProgramId pid)
 	glUniform3fv(glGetUniformLocation(programHandle, "GlobalLightColor"), 1, &globalLightColor[0]);
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-DebugDrawPointLights()
-{
-#if _DEBUG
-	if (Core::CVarReadInt(r_draw_light_spheres) > 0)
-	{
-		Model::Mesh::Primitive const& primitive = GetModel(icoSphereModel).meshes[0].primitives[0];
-		glBindVertexArray(primitive.vao);
-
-		static Render::ShaderResourceId const vs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::VERTEXSHADER, "shd/debug.vs");
-		static Render::ShaderResourceId const fs = Render::ShaderResource::LoadShader(Render::ShaderResource::ShaderType::FRAGMENTSHADER, "shd/debug.fs");
-		static ShaderProgramId debugProgram = Render::ShaderResource::CompileShaderProgram({ vs, fs });
-		GLuint debugProgramHandle = ShaderResource::GetProgramHandle(debugProgram);
-		glUseProgram(debugProgramHandle);
-
-		glm::vec4 color(1, 0, 0, 1);
-		glUniform4fv(glGetUniformLocation(debugProgramHandle, "color"), 1, &color.x);
-
-		static GLuint model = glGetUniformLocation(debugProgramHandle, "model");
-		static GLuint viewProjection = glGetUniformLocation(debugProgramHandle, "viewProjection");
-		Render::Camera* const mainCamera = Render::CameraManager::GetCamera(CAMERA_MAIN);
-		glUniformMatrix4fv(viewProjection, 1, GL_FALSE, &mainCamera->viewProjection[0][0]);
-
-		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		int drawId = Core::CVarReadInt(r_draw_light_sphere_id);
-		for (int i = 0; i < pointLights.positions.size(); i++)
-		{
-			if (drawId < 0 || i == drawId)
-			{
-				glm::mat4 transform = glm::translate(glm::vec3(pointLights.positions[i])) * glm::scale(glm::vec3(pointLights.radii[i]));
-				glUniformMatrix4fv(model, 1, GL_FALSE, &transform[0][0]);
-				glDrawElements(GL_TRIANGLES, primitive.numIndices, primitive.indexType, (void*)(intptr_t)primitive.offset);
-			}
-		}
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glEnable(GL_CULL_FACE);
-		
-		glBindVertexArray(0);
-	}
-#endif
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-bool
-IsValid(PointLightId id)
-{
-	return pointLightPool.IsValid(id);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-PointLightId
-CreatePointLight(glm::vec3 position, glm::vec3 color, float intensity, float radius)
-{
-	PointLightId id;
-	if (pointLightPool.Allocate(id))
-	{
-		pointLights.positions.push_back(glm::vec4(position, 1));
-		pointLights.colors.push_back(glm::vec4(color, 1) * intensity);
-		pointLights.radii.push_back(radius);
-	}
-	else
-	{
-		pointLights.positions[id.index] = glm::vec4(position, 1);
-		pointLights.colors[id.index] = glm::vec4(color, 1) * intensity;
-		pointLights.radii[id.index] = radius;
-	}
-	return id;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-DestroyPointLight(PointLightId id)
-{
-	assert(false);
-	// TODO: Need to add a hashtable to be able to remove lights, and still keep them packed.
-	pointLightPool.Deallocate(id);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-SetPosition(PointLightId id, glm::vec3 position)
-{
-	assert(IsValid(id));
-	pointLights.positions[id.index] = glm::vec4(position, 1);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-glm::vec3 
-GetPosition(PointLightId id)
-{
-	assert(IsValid(id));
-	return pointLights.positions[id.index];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-SetColorAndIntensity(PointLightId id, glm::vec3 color, float intensity)
-{
-	assert(IsValid(id));
-	pointLights.colors[id.index] = glm::vec4(color, 1) * intensity;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-glm::vec3 
-GetColorAndIntensity(PointLightId id)
-{
-	assert(IsValid(id));
-	return pointLights.colors[id.index];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-SetRadius(PointLightId id, float radius)
-{
-	assert(IsValid(id));
-	pointLights.radii[id.index] = radius;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float 
-GetRadius(PointLightId id)
-{
-	assert(IsValid(id));
-	return pointLights.radii[id.index];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-size_t
-GetNumPointLights()
-{
-	return pointLights.positions.size();
-}
 
 //------------------------------------------------------------------------------
 /**

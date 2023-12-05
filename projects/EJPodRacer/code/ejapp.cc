@@ -122,8 +122,6 @@ EJApp::Run()
     RenderDevice::SetRoadScale(TILE_SCALE);
     kbd = Input::GetDefaultKeyboard();
 
-    Render::LightServer::CreatePointLight(glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f);
-
     StartGame();
 
     std::clock_t c_start = std::clock();

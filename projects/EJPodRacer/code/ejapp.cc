@@ -228,7 +228,6 @@ EJApp::RunGame()
             t = 0.0f;
         }
     }
-
     racer->Update(dt);
     racer->CheckCollisions(collisionList);
 

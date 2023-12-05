@@ -73,11 +73,6 @@ float getFog()
 void main()
 {
     vec3 modPos = in_WorldSpacePos;
-    vec4 modCoord = gl_FragCoord;  
-	// Determine which tile this fragment belongs to
-	ivec2 location = ivec2(modCoord.x, modCoord.y);
-	ivec2 tileID = location / ivec2(TILE_SIZE, TILE_SIZE);
-	int index = tileID.y * NumTiles.x + tileID.x;
 
     vec4 baseColor = texture(BaseColorTexture, in_TexCoords).rgba * BaseColorFactor;
     baseColor = pow(baseColor, vec4(1.0f/2.2f));

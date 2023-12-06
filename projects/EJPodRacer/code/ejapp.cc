@@ -390,7 +390,8 @@ EJApp::RenderNanoVG(NVGcontext* vg)
     int height;
     window->GetSize(width, height);
 
-    std::string fpsText = std::format("Fps: {}, Min: {}, Max: {}, Avg: {}", fps, minFps, maxFps, GetAvgFps());
+    //std::string fpsText = std::format("Fps: {}, Min: {}, Max: {}, Avg: {}", fps, minFps, maxFps, GetAvgFps());
+    std::string fpsText = "Fps: " + std::to_string(fps);
     GUI::DrawLabel(vg, fpsText.c_str(), 16.0f, 10.0f, 10.0f, 100.0f, 30.0f, inGameColor);
 
     if (gameState == GameState::Start) {

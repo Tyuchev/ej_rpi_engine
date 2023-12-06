@@ -233,13 +233,12 @@ EJApp::RunGame()
     if (gameState == GameState::Game && stateTime > 5.0f)
     {
         // TODO: Fix bug where road snaps after new game.
-        static float t = 0.0f;
         const float TURN_SPEED = 0.05f;
-        t += dt;
-        if (t >= (2 * 3.14159)/TURN_SPEED) {
-            t = 0.0f;
+        roadTurnClock += dt;
+        if (roadTurnClock >= (2 * 3.14159)/TURN_SPEED) {
+            roadTurnClock = 0.0f;
         }
-        Render::RenderDevice::SetRoadTurnFactor(sin(t * TURN_SPEED));
+        Render::RenderDevice::SetRoadTurnFactor(sin(roadTurnClock * TURN_SPEED));
     }
 
     // Temp score system.
@@ -289,6 +288,7 @@ void
 EJApp::EndGame()
 {
     gameState = GameState::Start;
+    roadTurnClock = 0.0f;
     racer.reset();
     mapgen.reset();
     scoreSystem.Save();

@@ -57,5 +57,7 @@ private:
 	float stateTime = 0.0f;
 	std::unique_ptr<PodRacer> racer;
 	std::unique_ptr<Mapgen> mapgen;
+
+	float roadTurnClock = 0.0f;
 };
 } // namespace Game
